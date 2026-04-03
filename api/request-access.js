@@ -8,13 +8,20 @@ export default async function handler(req, res) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.ADMIN_CHAT_ID;
 
+    // Автоматически получаем домен твоего сайта (например, rojkins-taplist.vercel.app)
+    const host = req.headers.host;
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    
+    // Формируем уникальную ссылку для одобрения
+    const approveUrl = `${protocol}://${host}/api/approve?deviceId=${deviceId}`;
+
     // Формируем текст сообщения
     const text = `🚨 *Новый запрос доступа к экрану!*\n\nИмя: ${name}\nID устройства: \`${deviceId}\``;
     
-    // Формируем клавиатуру с кнопкой "Разрешить"
+    // Формируем клавиатуру с прямой ссылкой (url)
     const keyboard = {
         inline_keyboard: [[
-            { text: '✅ Разрешить доступ', callback_data: `approve_${deviceId}` }
+            { text: '✅ Разрешить доступ', url: approveUrl }
         ]]
     };
 
