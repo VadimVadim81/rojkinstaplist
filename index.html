@@ -249,22 +249,21 @@
                     document.querySelectorAll('.editable').forEach(el => el.contentEditable = true);
                     render();
                 } else {
-                    const email = prompt("Доступ ограничен. Введите ваше имя для запроса доступа:");
-                    if (email) {
+                    const name = prompt("Доступ ограничен. Введите ваше имя для запроса доступа:");
+                    if (name) {
                         try {
-                            await set(ref(db, 'access_requests/' + deviceId), {
-                                email: email,
-                                timestamp: Date.now(),
-                                status: 'pending'
+                            // Отправляем запрос на наш новый Vercel API
+                            await fetch('/api/request-access', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ deviceId: deviceId, name: name })
                             });
-                            alert("Запрос отправлен. Ожидайте подтверждения.");
+                            alert("Запрос отправлен. Ожидайте подтверждения в Telegram.");
                         } catch (e) {
-                            alert("Ошибка Firebase.");
+                            alert("Ошибка отправки запроса.");
                         }
                     }
                 }
-            }
-        };
 
         const glassOptions = ["Бокал 0,33", "Бокал 0,4", "Бокал 0,5"];
         
