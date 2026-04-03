@@ -20,7 +20,7 @@
         .logo { width: 25%; text-align: right; z-index: 10; display: flex; justify-content: flex-end; align-items: center; cursor: pointer; transition: opacity 0.2s; }
         .logo:hover { opacity: 0.8; }
         #logo-text { font-weight: 700; font-size: 2.5vh; color: var(--accent-color); text-transform: uppercase; }
-        #logo-img { max-height: 10vh; max-width: 100%; object-fit: contain; display: none; }
+        #logo-img { max-height: 10vh; max-width: 100%; object-fit: contain; display: none; filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.9)); }
         
         .main-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-transform: uppercase; font-size: 3.2vh; letter-spacing: 0.1em; font-weight: 700; text-align: center; white-space: nowrap; margin: 0; pointer-events: none; }
         
@@ -52,24 +52,18 @@
 
         .beer-info { display: flex; flex-direction: row; width: 55%; align-items: flex-start; }
 
-        .brewery-logo-wrapper { position: relative; width: 6vh; height: 6vh; margin-right: 1.5vh; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.5vh; }
-        .brewery-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.9)); }
-        .logo-placeholder { font-size: 1vh; color: #555; text-transform: uppercase; }
-        .brewery-logo-select { position: absolute; bottom: -2vh; left: -1vh; width: 8vh; font-size: 1vh; display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 2px; }
-        body.edit-mode .brewery-logo-select { display: block; }
-
         .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
         .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding: 0; margin: 0; }
         .editable-input[readonly] { cursor: default; pointer-events: none; }
         
-        .name-input { font-size: 2.5vh; color: #fff; line-height: 1.1; font-weight: 600; margin-bottom: 2px; }
+        .name-input { font-size: 2.5vh; color: #fff; line-height: 1.1; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; }
         .style-input { font-size: 1.8vh; color: #ccc; font-weight: 600; }
         
         .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #777; gap: 0.8vh; font-weight: 400; margin-top: 2px; }
         .brewery-input { font-size: 1.4vh; color: var(--gray-text); font-weight: 600; min-width: 10vh; max-width: 18vh; }
         
         .val-highlight { font-size: 1.8vh; color: #eee; font-weight: 600; }
-        .lbl-bold { font-weight: 700; color: #d4d4d4; } /* Обновлено: жирнее и светлее */
+        .lbl-bold { font-weight: 700; color: #d4d4d4; }
 
         .glass-select { background: transparent; color: var(--gray-text); border: none; font-family: inherit; font-size: 1.4vh; font-weight: 600; cursor: pointer; appearance: none; outline: none; padding: 0; margin: 0; min-width: 8vh; text-align: center; }
         .glass-select option { background: #111; color: white; }
@@ -96,8 +90,6 @@
         .btn-danger { color: #ffadad; border-color: #600; }
         .btn-danger:hover { background: #500; color: #fff; border-color: #a00; }
 
-        .admin-modal { pointer-events: auto !important; z-index: 1000; display: none; }
-
         body.edit-mode .editable { border-bottom: 1px dashed #444; min-width: 20px; padding: 0 4px; }
         body.edit-mode .editable-input { border-bottom: 1px dashed #444; }
         body.edit-mode #custom-footer { border-color: rgba(255, 255, 255, 0.2); }
@@ -105,7 +97,7 @@
         body.edit-mode .editable:focus, body.edit-mode .editable-input:focus { outline: none; background: rgba(255,255,255,0.05); border-radius: 3px; }
         body.edit-mode .tap-item { cursor: grab; }
 
-        #save-status { position: fixed; bottom: 3vh; right: 220px; font-size: 1.2vh; color: #444; opacity: 0; transition: 0.5s; z-index: 90; display: none; }
+        #save-status { position: fixed; bottom: 3vh; right: 220px; font-size: 1.2vh; color: #444; background: rgba(255, 255, 255, 0.9); padding: 5px 10px; border-radius: 4px; opacity: 0; transition: 0.5s; z-index: 90; display: none; font-weight: 700; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         body.edit-mode #save-status { display: block; }
 
         @media (max-width: 1000px) {
@@ -142,8 +134,6 @@
 
     <div id="admin-menu-wrapper">
         <div id="admin-actions-list">
-            <button class="btn-control" id="manage-logos-btn">🖼️ Управление логотипами</button>
-            <div style="height:1px; background:#333; margin: 4px 0;"></div>
             <button class="btn-control" id="export-btn">💾 Экспорт файла бэкапа</button>
             <button class="btn-control" id="import-btn">📂 Загрузить из файла</button>
             <div style="height:1px; background:#333; margin: 4px 0;"></div>
@@ -153,22 +143,9 @@
         <button class="btn-main-menu" id="main-admin-btn">🛠️ Управление данными</button>
     </div>
 
-    <div id="logo-modal" class="stop-overlay admin-modal">
-        <div style="background: #1a1a1a; padding: 3vh; border-radius: 1vh; width: 60%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
-            <h3 style="margin-top:0; color: #fff;">Логотипы пивоварен</h3>
-            <button class="btn-control" onclick="document.getElementById('modal-logo-upload').click()">➕ Загрузить новый логотип</button>
-            <div id="logo-list" style="margin-top: 2vh; display: flex; flex-direction: column; gap: 1vh;"></div>
-            <div style="margin-top: 3vh; text-align: right;">
-                <button class="btn-control" style="display:inline-block; min-width: auto; background: #440000; border-color: #800; color: white;" onclick="document.getElementById('logo-modal').style.display='none'">Закрыть</button>
-            </div>
-        </div>
-    </div>
-
     <datalist id="dl-names"></datalist>
     <datalist id="dl-breweries"></datalist>
     <input type="file" id="file-input" style="display:none" accept=".json">
-    <input type="file" id="quick-logo-upload" style="display:none" accept="image/*">
-    <input type="file" id="modal-logo-upload" style="display:none" accept="image/*">
     <div id="save-status">Сохранено</div>
 
     <script type="module">
@@ -197,7 +174,6 @@
 
         let isApproved = false;
         let isEditMode = false;
-        let pendingTapIndex = null; // Для быстрой загрузки логотипа на кран
 
         onValue(ref(db, `approved_devices/${deviceId}`), (snapshot) => {
             isApproved = snapshot.exists();
@@ -247,7 +223,38 @@
             mainAdminBtn.innerText = isShowing ? '❌ Закрыть' : '🛠️ Управление данными';
         };
 
-        // Загрузка логотипа бара по клику
+        // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ СЖАТИЯ КАРТИНОК ---
+        function compressImage(file, maxSize, callback) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    callback(canvas.toDataURL('image/jpeg', 0.8));
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ЗАГРУЗКА И СЖАТИЕ ЛОГОТИПА БАРА (Макс. размер 400px)
         document.getElementById('logo-container').onclick = () => {
             if (isEditMode) document.getElementById('logo-file-input').click();
         };
@@ -255,78 +262,20 @@
         document.getElementById('logo-file-input').onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                appData.logoBase64 = event.target.result;
+
+            const lTxt = document.getElementById('logo-text');
+            const originalText = lTxt.innerText;
+            lTxt.innerText = "Сжатие...";
+            lTxt.style.display = 'block';
+            document.getElementById('logo-img').style.display = 'none';
+
+            compressImage(file, 400, (compressedBase64) => {
+                appData.logoBase64 = compressedBase64;
                 save(); render();
-            };
-            reader.readAsDataURL(file);
+                lTxt.innerText = originalText;
+            });
+            e.target.value = "";
         };
-
-        // Управление логотипами пивоварен (Модальное окно)
-        document.getElementById('manage-logos-btn').onclick = (e) => {
-            e.stopPropagation();
-            renderLogoManager();
-            document.getElementById('logo-modal').style.display = 'flex';
-            adminActionsList.classList.remove('show');
-            mainAdminBtn.classList.remove('active');
-            mainAdminBtn.innerText = '🛠️ Управление данными';
-        };
-
-        function renderLogoManager() {
-            const list = document.getElementById('logo-list');
-            list.innerHTML = '';
-            if (!appData.breweryLogos) appData.breweryLogos = {};
-            for (const [name, b64] of Object.entries(appData.breweryLogos)) {
-                list.innerHTML += `
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:1vh; border-radius:0.5vh;">
-                        <div style="display:flex; align-items:center; gap:1.5vh;">
-                            <img src="${b64}" style="width:5vh; height:5vh; object-fit:contain; border-radius:4px;">
-                            <span style="font-size:1.8vh;">${name}</span>
-                        </div>
-                        <button class="btn-danger" style="padding:0.8vh 1.5vh; border-radius:4px; cursor:pointer; background:transparent; border:1px solid #600;" onclick="deleteBreweryLogo('${name}')">Удалить</button>
-                    </div>
-                `;
-            }
-            if (Object.keys(appData.breweryLogos).length === 0) {
-                list.innerHTML = '<div style="color:#777;">Нет сохраненных логотипов.</div>';
-            }
-        }
-
-        window.deleteBreweryLogo = (name) => {
-            if (confirm(`Удалить логотип "${name}"? Он также пропадет со всех кранов.`)) {
-                delete appData.breweryLogos[name];
-                appData.taps.forEach(t => { if (t.breweryLogoName === name) t.breweryLogoName = ""; });
-                save(); render(); renderLogoManager();
-            }
-        };
-
-        // Обработчик загрузки логотипа пивоварни (как из модалки, так и с крана)
-        function handleBreweryLogoUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const name = prompt("Введите название пивоварни для сохранения логотипа в базу:");
-                if (name) {
-                    if (!appData.breweryLogos) appData.breweryLogos = {};
-                    appData.breweryLogos[name] = event.target.result;
-                    
-                    // Если грузили прямо с крана, сразу присваиваем
-                    if (pendingTapIndex !== null) {
-                        appData.taps[pendingTapIndex].breweryLogoName = name;
-                        pendingTapIndex = null;
-                    }
-                    save(); render(); 
-                    if (document.getElementById('logo-modal').style.display === 'flex') renderLogoManager();
-                }
-            };
-            reader.readAsDataURL(file);
-            e.target.value = ""; // Сбрасываем input
-        }
-
-        document.getElementById('modal-logo-upload').onchange = handleBreweryLogoUpload;
-        document.getElementById('quick-logo-upload').onchange = handleBreweryLogoUpload;
 
         document.body.addEventListener('click', () => {
             if (isEditMode && adminActionsList.classList.contains('show')) {
@@ -375,7 +324,7 @@
 
         const glassOptions = ["Бокал 0,33", "Бокал 0,4", "Бокал 0,5"];
         
-        let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [], breweryLogos: {} };
+        let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [] };
 
         onValue(dbRef, (snap) => {
             const val = snap.val();
@@ -387,10 +336,9 @@
                 }
                 if (!appData.knownNames) appData.knownNames = [];
                 if (!appData.knownBreweries) appData.knownBreweries = [];
-                if (!appData.breweryLogos) appData.breweryLogos = {};
                 if (!document.activeElement.isContentEditable && document.activeElement.tagName !== 'INPUT') render();
             } else {
-                for(let i=1; i<=12; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: false, breweryLogoName: ""});
+                for(let i=1; i<=12; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: false});
                 render(); save();
             }
         });
@@ -421,15 +369,6 @@
                 let gOptions = '';
                 glassOptions.forEach(opt => gOptions += `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`);
 
-                // Сборка списка логотипов пивоварен
-                let logoOptions = `<option value="">Без логотипа</option>`;
-                Object.keys(appData.breweryLogos || {}).forEach(k => {
-                    logoOptions += `<option value="${k}" ${t.breweryLogoName===k?'selected':''}>${k}</option>`;
-                });
-                logoOptions += `<option value="__UPLOAD__">➕ Загрузить...</option>`;
-
-                const logoSrc = t.breweryLogoName && appData.breweryLogos && appData.breweryLogos[t.breweryLogoName] ? appData.breweryLogos[t.breweryLogoName] : '';
-
                 const html = `
                 <div class="tap-item" data-i="${i}" draggable="${isEditMode && !isStopped}">
                     <div class="circled-number">${t.number}</div>
@@ -443,10 +382,6 @@
                             </div>
                         </div>
                         <div class="beer-info ${isStopped ? 'blurred-content' : ''}">
-                            <div class="brewery-logo-wrapper">
-                                ${logoSrc ? `<img src="${logoSrc}" class="brewery-logo-img">` : `<div class="logo-placeholder">${isEditMode?'ЛОГО':''}</div>`}
-                                ${isEditMode ? `<select class="brewery-logo-select" data-i="${i}" data-f="breweryLogoName">${logoOptions}</select>` : ''}
-                            </div>
                             <div class="text-col">
                                 <input type="text" class="editable-input name-input" data-i="${i}" data-f="name" list="dl-names" value="${t.name||''}" placeholder="${isEditMode ? 'Название' : ''}" ${!isEditMode?'readonly':''}>
                                 <input type="text" class="editable-input style-input" data-i="${i}" data-f="style" value="${t.style||''}" placeholder="${isEditMode ? 'Описание' : ''}" ${!isEditMode?'readonly':''}>
@@ -492,7 +427,7 @@
                     e.stopPropagation();
                     if (confirm(`Очистить кран?`)) {
                         const i = btn.dataset.i;
-                        appData.taps[i].name = ""; appData.taps[i].brewery = ""; appData.taps[i].style = ""; appData.taps[i].breweryLogoName = ""; appData.taps[i].isStopped = true;
+                        appData.taps[i].name = ""; appData.taps[i].brewery = ""; appData.taps[i].style = ""; appData.taps[i].isStopped = true;
                         save(); render();
                     }
                 };
@@ -524,7 +459,17 @@
             document.querySelectorAll('.editable, .editable-input').forEach(el => {
                 el.onblur = () => {
                     const i = el.dataset.i, f = el.dataset.f;
-                    const val = el.tagName === 'INPUT' ? el.value : el.innerText;
+                    let val = el.tagName === 'INPUT' ? el.value : el.innerText;
+                    
+                    // Форматирование текста: Название капсом, Описание и Пивоварня с заглавной буквы
+                    if (f === 'name' && val) {
+                        val = val.toUpperCase();
+                        if (el.tagName === 'INPUT') el.value = val; else el.innerText = val;
+                    } else if ((f === 'style' || f === 'brewery') && val) {
+                        val = val.charAt(0).toUpperCase() + val.slice(1);
+                        if (el.tagName === 'INPUT') el.value = val; else el.innerText = val;
+                    }
+
                     if (i !== undefined) {
                         appData.taps[i][f] = val;
                         if (f === 'name' && val && !appData.knownNames.includes(val)) appData.knownNames.push(val);
@@ -546,14 +491,6 @@
                 sel.onchange = () => {
                     const i = sel.dataset.i, f = sel.dataset.f;
                     if (i !== undefined) {
-                        // Логика быстрой загрузки логотипа с крана
-                        if (f === 'breweryLogoName' && sel.value === '__UPLOAD__') {
-                            pendingTapIndex = i;
-                            document.getElementById('quick-logo-upload').click();
-                            sel.value = appData.taps[i].breweryLogoName || ''; // Возвращаем обратно временно
-                            return;
-                        }
-                        
                         appData.taps[i][f] = sel.value;
                         save(); render();
                     }
