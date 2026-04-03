@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla On Tap</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --accent-color: #800020; --gray-text: #999; }
+        body { margin: 0; padding: 0; background-color: black; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600; display: flex; flex-direction: column; align-items: center; overflow: hidden; height: 100vh; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; width: 96%; height: 12vh; position: relative; margin-top: 1vh; border-bottom: 1px solid rgba(128,0,32,0.2); padding-bottom: 1vh; }
+        
+        .weather-widget { font-weight: 400; font-size: 2.2vh; color: #aaa; width: 35%; text-align: left; line-height: 1.3; cursor: pointer; transition: color 0.2s; z-index: 10; }
+        .weather-widget:hover { color: #fff; }
+        .weather-widget b { color: var(--accent-color); font-weight: 700; }
+
+        .logo { width: 25%; text-align: right; z-index: 10; display: flex; justify-content: flex-end; align-items: center; }
+        #logo-text { font-weight: 700; font-size: 2.5vh; color: var(--accent-color); text-transform: uppercase; }
+        #logo-img { max-height: 10vh; max-width: 100%; object-fit: contain; display: none; }
+        
+        .main-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-transform: uppercase; font-size: 3.2vh; letter-spacing: 0.1em; font-weight: 700; text-align: center; white-space: nowrap; margin: 0; pointer-events: none; }
+        
+        #columns-container { display: flex; width: 96%; flex-grow: 1; justify-content: space-between; margin-top: 2vh; overflow: hidden; }
+        .column { width: 49%; display: flex; flex-direction: column; }
+        
+        .tap-item { position: relative; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%); border: 1px solid rgba(128, 0, 32, 0.4); border-radius: 1vh; margin-bottom: 0.6vh; padding: 0.6vh 1.2vh; height: 8.8vh; box-sizing: border-box; transition: opacity 0.2s, border 0.2s; }
+        .tap-item.dragging { opacity: 0.4; border: 1px dashed var(--accent-color); z-index: 50; }
+        .tap-item.drag-over { border-top: 3px solid var(--accent-color); }
+
+        /* WI-FI ПЛАШКА: Высота как у крана, ширина 20% (ориентир по черте цены) */
+        .wifi-item { 
+            position: relative; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%); 
+            border: 1px solid rgba(128, 0, 32, 0.4); 
+            border-radius: 1vh; 
+            width: 20%; 
+            height: 8.8vh; 
+            margin-top: 0.2vh; 
+            padding: 0 1vh; 
+            box-sizing: border-box;
+            align-self: flex-end;
+        }
+        .wifi-text { font-size: 1.2vh; color: var(--gray-text); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; writing-mode: vertical-lr; transform: rotate(180deg); }
+        
+        #wifi-qr-img { height: 7.5vh; width: 7.5vh; object-fit: contain; cursor: pointer; }
+        #wifi-qr-placeholder { height: 7vh; width: 7vh; border: 1px dashed #333; display: flex; align-items: center; justify-content: center; font-size: 1.5vh; color: #333; cursor: pointer; border-radius: 0.5vh; }
+
+        .tap-menu-container { position: absolute; top: 0.5vh; right: 0.8vh; z-index: 35; display: none; }
+        body.edit-mode .tap-menu-container { display: block; }
+        .tap-menu-btn { color: #555; font-size: 2.8vh; cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0 5px; user-select: none; }
+        .tap-menu-btn:hover { color: #fff; }
+
+        .tap-context-menu { position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #444; border-radius: 6px; display: none; flex-direction: column; min-width: 160px; box-shadow: 0 8px 25px rgba(0,0,0,0.8); z-index: 1000; overflow: hidden; }
+        .tap-context-menu.show { display: flex; }
+        .tap-context-menu button { background: transparent; border: none; color: #eee; padding: 12px 15px; text-align: left; cursor: pointer; font-family: inherit; font-size: 1.3vh; transition: background 0.2s; }
+        .tap-context-menu button:hover { background: #333; }
+        .btn-menu-danger { color: #ffadad !important; border-top: 1px solid #333 !important; }
+
+        .stop-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); z-index: 10; pointer-events: none; border-radius: 1vh; }
+        .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
+
+        .beer-info { display: flex; flex-direction: row; width: 55%; align-items: flex-start; }
+        .number-col { display: flex; flex-direction: column; align-items: center; width: 6vh; margin-right: 1.2vh; flex-shrink: 0; }
+        .beer-number { font-size: 2.4vh; color: #fff; font-weight: bold; margin-bottom: 0.4vh; font-variant-numeric: tabular-nums; }
+        
+        .flag-wrapper { position: relative; width: 4.5vh; height: 3vh; }
+        .beer-flag-display { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; border: 1px solid #333; }
+        .no-flag-placeholder { font-size: 2.5vh; line-height: 3vh; }
+        .flag-select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; display: none; }
+
+        .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
+        .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding: 0; margin: 0; }
+        .editable-input[readonly] { cursor: default; pointer-events: none; }
+        .name-input { font-size: 2.5vh; color: #fff; line-height: 1.1; font-weight: 600; margin-bottom: 2px; }
+        .brewery-input { font-size: 1.8vh; color: #ccc; text-transform: none; letter-spacing: 0.05em; font-weight: 600; }
+        
+        .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #777; gap: 0.8vh; font-weight: 400; }
+        .val-highlight { font-size: 1.8vh; color: #eee; font-weight: 600; }
+
+        .style-select, .glass-select { background: transparent; color: var(--gray-text); border: none; font-family: inherit; font-size: 1.4vh; font-weight: 600; cursor: pointer; appearance: none; outline: none; padding: 0; margin: 0; }
+        .style-select { min-width: 14vh; max-width: 20vh; text-overflow: ellipsis; }
+        .glass-select { min-width: 8vh; text-align: center; }
+        .style-select option, .glass-select option { background: #111; color: white; }
+
+        .price-column { display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; border-left: 1px solid #222; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 2.4vh; color: #fff; font-weight: 700; }
+        .price-label-text { font-size: 1.2vh; color: #555; text-transform: uppercase; margin-top: 0.1vh; font-weight: 600; }
+
+        #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
+
+        /* Кнопка админа: между WIFI и футером */
+        #admin-menu-wrapper { position: relative; display: none; flex-direction: column; align-items: flex-end; gap: 8px; margin-top: 0.8vh; align-self: flex-end; z-index: 100; }
+        body.edit-mode #admin-menu-wrapper { display: flex; }
+
+        .btn-main-menu { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 1.1vh; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .btn-main-menu:hover { background: #2a2a2a; border-color: #666; }
+        .btn-main-menu.active { background: var(--accent-color); border-color: #fff; }
+
+        #admin-actions-list { display: none; flex-direction: column; gap: 6px; background: rgba(20,20,20,0.95); padding: 10px; border-radius: 8px; border: 1px solid #333; backdrop-filter: blur(5px); box-shadow: 0 8px 25px rgba(0,0,0,0.7); position: absolute; bottom: 110%; right: 0; }
+        #admin-actions-list.show { display: flex; }
+
+        .btn-control { background: #222; color: #aaa; border: 1px solid #444; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 1.3vh; transition: 0.15s; min-width: 200px; text-align: left; display: flex; align-items: center; gap: 8px; }
+        .btn-control:hover { background: #333; color: #fff; border-color: #666; }
+        
+        .btn-danger { color: #ffadad; border-color: #600; }
+        .btn-danger:hover { background: #500; color: #fff; border-color: #a00; }
+
+        body.edit-mode .editable { border-bottom: 1px dashed #444; min-width: 20px; padding: 0 4px; }
+        body.edit-mode .editable-input { border-bottom: 1px dashed #444; }
+        body.edit-mode #custom-footer { border-color: rgba(255, 255, 255, 0.2); }
+        body.edit-mode .flag-select { display: block; }
+        body.edit-mode .style-select, body.edit-mode .glass-select { border-bottom: 1px dashed #444; appearance: auto; }
+        body.edit-mode .editable:focus, body.edit-mode .editable-input:focus { outline: none; background: rgba(255,255,255,0.05); border-radius: 3px; }
+        body.edit-mode .tap-item { cursor: grab; }
+
+        #save-status { position: fixed; bottom: 3vh; right: 220px; font-size: 1.2vh; color: #444; opacity: 0; transition: 0.5s; z-index: 90; display: none; }
+        body.edit-mode #save-status { display: block; }
+
+        @media (max-width: 1000px) {
+            body { height: auto; overflow-y: auto; }
+            header { flex-direction: column; height: auto; padding: 2vh; }
+            .main-title { position: static; transform: none; width: 100%; order: 1; margin-bottom: 1.5vh; pointer-events: auto; }
+            #columns-container { flex-direction: column; overflow: visible; }
+            .column { width: 100%; }
+            .tap-item { height: auto; padding: 2vh; margin-bottom: 1.5vh; flex-wrap: wrap; }
+            .wifi-item { width: 40%; height: 8.8vh; margin-top: 1vh; align-self: center; }
+            .beer-info { width: 100%; margin-bottom: 1.5vh; }
+            .price-column { width: 48%; border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div id="datetime-weather" class="weather-widget" title="Управление">Загрузка...</div>
+        <div class="main-title">СЕГОДНЯ НА КРАНАХ</div>
+        <div class="logo" id="logo-container">
+            <input type="file" id="logo-file-input" style="display:none" accept="image/*">
+            <img id="logo-img" src="">
+            <div class="editable" contenteditable="false" id="logo-text">V&V</div>
+        </div>
+    </header>
+
+    <div id="columns-container">
+        <div id="left-column" class="column"></div>
+        <div id="right-column" class="column"></div>
+    </div>
+
+    <div id="custom-footer" class="editable" contenteditable="false"></div>
+
+    <div id="admin-menu-wrapper">
+        <div id="admin-actions-list">
+            <button class="btn-control" id="export-btn">💾 Экспорт файла бэкапа</button>
+            <button class="btn-control" id="import-btn">📂 Загрузить из файла</button>
+            <div style="height:1px; background:#333; margin: 4px 0;"></div>
+            <button class="btn-control btn-danger" id="clear-names-btn">🧹 Очистить базу имен</button>
+            <button class="btn-control btn-danger" id="clear-breweries-btn">🧹 Очистить базу пивоварен</button>
+        </div>
+        <button class="btn-main-menu" id="main-admin-btn">🛠️ Управление данными</button>
+    </div>
+
+    <datalist id="dl-names"></datalist>
+    <datalist id="dl-breweries"></datalist>
+    <input type="file" id="file-input" style="display:none" accept=".json">
+    <input type="file" id="wifi-file-input" style="display:none" accept="image/*">
+    <div id="save-status">Сохранено</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyCUIIMqq5cYhNgqUazJL_CxgvOhCrtwIi4",
+  authDomain: "rojkins-taplist.firebaseapp.com",
+databaseURL: "https://rojkins-taplist-default-rtdb.europe-west1.firebasedatabase.app/",
+  projectId: "rojkins-taplist",
+  storageBucket: "rojkins-taplist.firebasestorage.app",
+  messagingSenderId: "174231207339",
+  appId: "1:174231207339:web:99217e986e853dce8766ee"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'valhallaMenu');
+
+        let deviceId = localStorage.getItem('valhalla_device_id');
+        if (!deviceId) {
+            deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('valhalla_device_id', deviceId);
+        }
+
+        let isApproved = false;
+        let isEditMode = false;
+
+        onValue(ref(db, `approved_devices/${deviceId}`), (snapshot) => {
+            isApproved = snapshot.exists();
+        });
+
+        let currentWeatherData = "Загрузка погоды...";
+
+        function updateClock() {
+            const now = new Date();
+            const tz = { timeZone: 'Asia/Novosibirsk' };
+            const time = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', ...tz });
+            const date = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', ...tz });
+            
+            document.getElementById('datetime-weather').innerHTML = `<b>${time}</b>, ${date}<br>${currentWeatherData}`;
+        }
+
+        async function updateWeather() {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=55.0415&longitude=82.9346&current_weather=true&_t=${Date.now()}`, { cache: 'no-store' });
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                currentWeatherData = `Новосибирск: <b>${temp > 0 ? '+' + temp : temp}°C</b>`;
+            } catch { 
+                currentWeatherData = "Новосибирск: ошибка сети"; 
+            }
+            updateClock();
+        }
+
+        setInterval(updateClock, 60000);
+        setInterval(updateWeather, 1800000);
+        updateClock();
+        updateWeather();
+
+        async function sendBackupToTelegram(data) {
+            try { await fetch('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            } catch (err) { console.error("Ошибка API бэкапа"); }
+        }
+
+        const mainAdminBtn = document.getElementById('main-admin-btn');
+        const adminActionsList = document.getElementById('admin-actions-list');
+        const adminWrapper = document.getElementById('admin-menu-wrapper');
+
+        mainAdminBtn.onclick = (e) => {
+            e.stopPropagation();
+            const isShowing = adminActionsList.classList.toggle('show');
+            mainAdminBtn.classList.toggle('active', isShowing);
+            mainAdminBtn.innerText = isShowing ? '❌ Закрыть' : '🛠️ Управление данными';
+        };
+
+        document.body.addEventListener('click', () => {
+            if (isEditMode && adminActionsList.classList.contains('show')) {
+                adminActionsList.classList.remove('show');
+                mainAdminBtn.classList.remove('active');
+                mainAdminBtn.innerText = '🛠️ Управление данными';
+            }
+            document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
+        });
+
+        document.getElementById('datetime-weather').onclick = async () => {
+            if (isEditMode) {
+                if (confirm("Выйти из режима редактирования?")) {
+                    sendBackupToTelegram(appData);
+                    isEditMode = false;
+                    document.body.classList.remove('edit-mode');
+                    document.querySelectorAll('.editable').forEach(el => el.contentEditable = false);
+                    adminActionsList.classList.remove('show');
+                    mainAdminBtn.classList.remove('active');
+                    mainAdminBtn.innerText = '🛠️ Управление данными';
+                    render();
+                }
+            } else {
+                if (isApproved) {
+                    isEditMode = true;
+                    document.body.classList.add('edit-mode');
+                    document.querySelectorAll('.editable').forEach(el => el.contentEditable = true);
+                    render();
+                } else {
+                    const email = prompt("Доступ ограничен. Введите ваше имя для запроса доступа:");
+                    if (email) {
+                        try {
+                            await set(ref(db, 'access_requests/' + deviceId), {
+                                email: email,
+                                timestamp: Date.now(),
+                                status: 'pending'
+                            });
+                            alert("Запрос отправлен. Ожидайте подтверждения.");
+                        } catch (e) {
+                            alert("Ошибка Firebase.");
+                        }
+                    }
+                }
+            }
+        };
+
+        const beerStylesList = [ "Abbey Tripel", "Altbier", "Amber Ale", "Amber Ale - American", "Amber Ale - Belgian", "Amber Ale - English", "American Pale Ale (APA)", "American Strong Ale", "Apple Cider", "Apple Cider - Dry", "Apple Cider - Semi-Sweet", "Apple Cider - Sweet", "Baltic Porter", "Barleywine", "Barleywine - American", "Barleywine - English", "Barrel-Aged Barleywine", "Barrel-Aged Imperial Stout", "Barrel-Aged Porter", "Barrel-Aged Sour", "Barrel-Aged Stout", "Belgian Ale", "Belgian Blonde", "Belgian Dark Strong Ale", "Belgian Dubbel", "Belgian IPA", "Belgian Pale Ale", "Belgian Quadrupel", "Belgian Strong Ale", "Belgian Strong Dark Ale", "Belgian Strong Golden Ale", "Belgian Tripel", "Berliner Weisse", "Berliner Weisse - Fruited", "Bière de Champagne", "Bière de Garde", "Bitter - English", "Bitter - Extra Special / Strong (ESB)", "Bitter - Ordinary", "Black Ale", "Black IPA (Cascadian Dark Ale)", "Blonde Ale", "Blonde Ale - Belgian", "Bock", "Bock - Doppelbock", "Bock - Eisbock", "Bock - Heller (Maibock)", "Bock - Weizenbock", "Braggot", "Brett Beer", "Brown Ale", "Brown Ale - American", "Brown Ale - Belgian", "Brown Ale - English", "Brown Ale - Imperial", "Brut IPA", "Burton Ale", "California Common (Steam Beer)", "Cascadian Dark Ale", "Cider - Botanical", "Cider - Dry", "Cider - Hopped", "Cider - Ice", "Cider - Perry", "Cider - Rosé", "Cider - Sweet", "Cider - Traditional", "Cider - with Berries", "Cider - with Fruits", "Coffee Porter", "Coffee Stout", "Cold IPA", "Cream Ale", "Cryo Hop IPA", "Czech Pale Lager", "Czech Pilsner", "Dark Ale", "Dark Mild", "DIPA (Double IPA)", "Doppelbock", "Double IPA", "Double NEIPA", "Dry Stout", "Dunkel", "Dunkelweizen", "Eisbock", "English Pale Ale", "English Strong Ale", "ESB", "Export Lager", "Faro", "Festbier", "Flanders Brown Ale (Oud Bruin)", "Flanders Red Ale", "Fruit Beer", "Fruited Sour", "Golden Ale", "Gose", "Gose - Fruited", "Gose - Tomato", "Graff", "Grisette", "Gruit / Ancient Herbed Ale", "Hard Kombucha", "Hard Seltzer", "Hazy IPA", "Hazy Pale Ale", "Hefeweizen", "Helles", "Helles Bock", "Honey Beer", "Hoppy Lager", "Ice Beer", "Ice Cider", "Imperial IPA", "Imperial NEIPA", "Imperial Pilsner", "Imperial Porter", "Imperial Red Ale", "Imperial Stout", "Imperial Stout - Pastry", "Imperial Stout - Russian", "India Pale Ale (IPA)", "India Pale Lager (IPL)", "IPA - American", "IPA - Belgian", "IPA - Black", "IPA - Brut", "IPA - Cold", "IPA - English", "IPA - Imperial / Double", "IPA - Milkshake", "IPA - New England / Hazy", "IPA - Red", "IPA - Rye", "IPA - Session", "IPA - Sour", "IPA - Triple", "IPA - West Coast", "IPA - White", "Irish Dry Stout", "Irish Red Ale", "Italian Pilsner", "Kellerbier", "Kombucha", "Kolsch", "Kriek", "Lager - Amber", "Lager - American", "Lager - Dark", "Lager - Dortmunder", "Lager - Euro Pale", "Lager - Helles", "Lager - Munich Dunkel", "Lager - Pale", "Lager - Strong", "Lager - Unfiltered", "Lager - Vienna", "Lambic", "Light Ale", "Light Lager", "Maibock", "Märzen", "Mead - Acerglyn", "Mead - Bochet", "Mead - Braggot", "Mead - Cyser", "Mead - Melomel (Fruited)", "Mead - Metheglin (Spiced)", "Mead - Pyment", "Mead - Traditional", "Micro IPA", "Milk Stout", "Milkshake IPA", "Munich Dunkel", "Mushroom Beer", "NEDIPA", "NEIPA (New England IPA)", "New Zealand IPA", "New Zealand Pale Ale", "Non-Alcoholic Beer", "Oatmeal Stout", "Old Ale", "Oud Bruin", "Pale Ale", "Pale Ale - American", "Pale Ale - Australian", "Pale Ale - Belgian", "Pale Ale - English", "Pale Ale - New Zealand", "Pastry Sour", "Pastry Stout", "Perry", "Pilsner - Bohemian / Czech", "Pilsner - German", "Pilsner - Imperial", "Pilsner - Italian", "Pilsner - Other", "Porter - American", "Porter - Baltic", "Porter - Coffee", "Porter - English", "Porter - Imperial", "Porter - Smoked", "Pumpkin Ale", "Quadrupel (Quad)", "Radler", "Rauchbier", "Red Ale", "Red Ale - American", "Red Ale - Imperial", "Red Ale - Irish", "Roggenbier", "Russian Imperial Stout", "Rye Ale", "Rye IPA", "Saison", "Saison - Farmhouse Ale", "Schwarzbier", "Scotch Ale (Wee Heavy)", "Scottish Ale", "Session IPA", "Shandy", "Smoked Beer", "Smoothie Sour", "Sour Ale", "Sour Ale - Berliner Weisse", "Sour Ale - Flanders", "Sour Ale - Fruited", "Sour Ale - Gose", "Spice / Herb / Vegetable", "Stout - American", "Stout - Coffee", "Stout - Foreign / Export", "Stout - Imperial", "Stout - Irish Dry", "Stout - Milk / Sweet", "Stout - Oatmeal", "Stout - Oyster", "Stout - Pastry", "Stout - Russian Imperial", "Strong Ale - American", "Strong Ale - English", "TIPA (Triple IPA)", "Tomato Gose", "Tripel", "Vienna Lager", "Wee Heavy", "Weissbier", "Weizenbock", "West Coast IPA", "Wheat Beer - American", "Wheat Beer - Wheat Wine", "Wheat Beer - Witbier", "White IPA", "Wild Ale", "Winter Ale", "Winter Warmer", "Witbier (Blanche)", "Wood-Aged Beer", "Zwickelbier" ].sort();
+        const glassOptions = ["Бокал 0,33", "Бокал 0,4", "Бокал 0,5"];
+        const flags = { "none": "🏳️ Нет", "by": "🇧🇾 Беларусь", "be": "🇧🇪 Бельгия", "gb": "🇬🇧 Великобритания", "de": "🇩🇪 Германия", "ie": "🇮🇪 Ирландия", "ru": "🇷🇺 Россия", "us": "🇺🇸 США", "cz": "🇨🇿 Чехия" };
+        
+        let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [] };
+
+        onValue(dbRef, (snap) => {
+            const val = snap.val();
+            if (val) {
+                appData = val;
+                if (!appData.knownNames) appData.knownNames = [];
+                if (!appData.knownBreweries) appData.knownBreweries = [];
+                if (!document.activeElement.isContentEditable && document.activeElement.tagName !== 'INPUT') render();
+            } else {
+                for(let i=1; i<=15; i++) appData.taps.push({number:i, country:"none", name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: false});
+                render(); save();
+            }
+        });
+
+        function save() {
+            appData.lastEditorId = deviceId;
+            const s = document.getElementById('save-status');
+            s.style.opacity = 1;
+            set(dbRef, appData).then(() => { setTimeout(() => s.style.opacity = 0, 1000); });
+        }
+
+        window.handleWifiUpload = () => { if (isEditMode) document.getElementById('wifi-file-input').click(); };
+        document.getElementById('wifi-file-input').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => { appData.wifiQR = event.target.result; save(); render(); };
+            reader.readAsDataURL(file);
+        };
+
+        function render() {
+            const lImg = document.getElementById('logo-img');
+            const lTxt = document.getElementById('logo-text');
+            if (appData.logoBase64) { lImg.src = appData.logoBase64; lImg.style.display = 'block'; lTxt.style.display = 'none'; }
+            else { lImg.style.display = 'none'; lTxt.style.display = 'block'; lTxt.innerText = appData.logoText || "V&V"; }
+
+            document.getElementById('custom-footer').innerText = appData.footer;
+            document.getElementById('dl-names').innerHTML = appData.knownNames.map(n => `<option value="${n}">`).join('');
+            document.getElementById('dl-breweries').innerHTML = appData.knownBreweries.map(b => `<option value="${b}">`).join('');
+
+            const lCol = document.getElementById('left-column');
+            const rCol = document.getElementById('right-column');
+            lCol.innerHTML = ''; rCol.innerHTML = '';
+
+            appData.taps.forEach((t, i) => {
+                const isStopped = t.isStopped === true;
+                const flagImg = t.country === 'none' ? '<span class="no-flag-placeholder">🏳️</span>' : `<img class="beer-flag-display" src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/${t.country}.svg">`;
+                let sOptions = `<option value="" disabled ${!t.style?'selected':''}>Стиль...</option>`;
+                beerStylesList.forEach(s => sOptions += `<option value="${s}" ${t.style===s?'selected':''}>${s}</option>`);
+                let fOptions = '';
+                Object.keys(flags).forEach(k => fOptions += `<option value="${k}" ${t.country===k?'selected':''}>${flags[k]}</option>`);
+                let gOptions = '';
+                glassOptions.forEach(opt => gOptions += `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`);
+
+                const html = `
+                <div class="tap-item" data-i="${i}" draggable="${isEditMode && !isStopped}">
+                    ${isStopped ? '<div class="stop-overlay"><div class="stop-text">СКОРО ТУТ БУДЕТ ПИВО</div></div>' : ''}
+                    <div class="tap-menu-container">
+                        <div class="tap-menu-btn" data-i="${i}">⋮</div>
+                        <div class="tap-context-menu" id="menu-${i}">
+                            <button class="btn-menu-stop" data-i="${i}">${isStopped ? '▶ Снять со стопа' : '⏸ Поставить на стоп'}</button>
+                            <button class="btn-menu-danger" data-i="${i}">🧹 Очистить</button>
+                        </div>
+                    </div>
+                    <div class="beer-info ${isStopped ? 'blurred-content' : ''}">
+                        <div class="number-col">
+                            <span class="beer-number">${t.number}</span>
+                            <div class="flag-wrapper">${flagImg}<select class="flag-select" data-i="${i}" data-f="country">${fOptions}</select></div>
+                        </div>
+                        <div class="text-col">
+                            <input type="text" class="editable-input name-input" data-i="${i}" data-f="name" list="dl-names" value="${t.name||''}" ${!isEditMode?'readonly':''}>
+                            <input type="text" class="editable-input brewery-input" data-i="${i}" data-f="brewery" list="dl-breweries" value="${t.brewery||''}" ${!isEditMode?'readonly':''}>
+                            <div class="beer-details-row">
+                                <select class="style-select" data-i="${i}" data-f="style" ${!isEditMode?'style="pointer-events:none"':''}>${sOptions}</select>
+                                <span>|</span> ABV <span class="editable val-highlight" contenteditable="${isEditMode}" data-i="${i}" data-f="abv">${t.abv||'0'}</span>%
+                                <span>|</span> IBU <span class="editable val-highlight" contenteditable="${isEditMode}" data-i="${i}" data-f="ibu">${t.ibu||'0'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="price-column ${isStopped ? 'blurred-content' : ''}">
+                        <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
+                        <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${gOptions}</select>
+                    </div>
+                    <div class="price-column ${isStopped ? 'blurred-content' : ''}">
+                        <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
+                        <div class="price-label-text">1 Л. НАВЫНОС</div>
+                    </div>
+                </div>`;
+                if (i < 8) lCol.innerHTML += html; else rCol.innerHTML += html;
+                
+                if (i === 14) {
+                    const wifiHtml = `
+                    <div class="wifi-item">
+                        <div class="wifi-text">WIFI</div>
+                        <div onclick="handleWifiUpload()" style="flex-grow: 1; display: flex; justify-content: flex-end; align-items: center;">
+                            ${appData.wifiQR ? `<img id="wifi-qr-img" src="${appData.wifiQR}">` : `<div id="wifi-qr-placeholder">${isEditMode ? 'QR' : ''}</div>`}
+                        </div>
+                    </div>`;
+                    rCol.innerHTML += wifiHtml;
+                    rCol.appendChild(adminWrapper);
+                }
+            });
+
+            document.querySelectorAll('.tap-menu-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
+                    document.getElementById(`menu-${btn.dataset.i}`).classList.add('show');
+                };
+            });
+            document.querySelectorAll('.btn-menu-stop').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    appData.taps[btn.dataset.i].isStopped = !appData.taps[btn.dataset.i].isStopped;
+                    save(); render();
+                };
+            });
+            document.querySelectorAll('.btn-menu-danger').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Очистить кран?`)) {
+                        const i = btn.dataset.i;
+                        appData.taps[i].name = ""; appData.taps[i].brewery = ""; appData.taps[i].isStopped = true;
+                        save(); render();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.tap-item').forEach(item => {
+                if (!isEditMode) return;
+                const i = parseInt(item.dataset.i);
+                if (appData.taps[i].isStopped) return;
+                item.ondragstart = (e) => { e.dataTransfer.setData('text/plain', item.dataset.i); item.classList.add('dragging'); };
+                item.ondragend = () => { item.classList.remove('dragging'); document.querySelectorAll('.tap-item').forEach(el => el.classList.remove('drag-over')); };
+                item.ondragover = (e) => { e.preventDefault(); item.classList.add('drag-over'); };
+                item.ondragleave = () => item.classList.remove('drag-over');
+                item.ondrop = (e) => {
+                    e.preventDefault(); item.classList.remove('drag-over');
+                    const fromI = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toI = parseInt(item.dataset.i);
+                    if (fromI !== toI && !isNaN(fromI) && !isNaN(toI)) {
+                        const tempObj = { ...appData.taps[fromI] };
+                        const fromNum = appData.taps[fromI].number;
+                        const toNum = appData.taps[toI].number;
+                        appData.taps[fromI] = { ...appData.taps[toI], number: fromNum };
+                        appData.taps[toI] = { ...tempObj, number: toNum };
+                        save(); render();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.editable, .editable-input').forEach(el => {
+                el.onblur = () => {
+                    const i = el.dataset.i, f = el.dataset.f;
+                    const val = el.tagName === 'INPUT' ? el.value : el.innerText;
+                    if (i !== undefined) {
+                        appData.taps[i][f] = val;
+                        if (f === 'name' && val && !appData.knownNames.includes(val)) appData.knownNames.push(val);
+                        if (f === 'brewery' && val && !appData.knownBreweries.includes(val)) appData.knownBreweries.push(val);
+                        if (f === 'litrePrice') {
+                            const lP = parseFloat(appData.taps[i].litrePrice);
+                            if (!isNaN(lP)) appData.taps[i].glassPrice = Math.round((lP / 2) + 70).toString();
+                            else appData.taps[i].glassPrice = "";
+                        }
+                    }
+                    else if (el.id === 'logo-text') appData.logoText = val;
+                    else if (el.id === 'custom-footer') appData.footer = val;
+                    save(); if (f === 'litrePrice') render();
+                };
+                el.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } };
+            });
+
+            document.querySelectorAll('select').forEach(sel => {
+                sel.onchange = () => {
+                    const i = sel.dataset.i, f = sel.dataset.f;
+                    if (i !== undefined) {
+                        appData.taps[i][f] = sel.value;
+                        save(); render();
+                    }
+                };
+            });
+        }
+    </script>
+</body>
+</html>
