@@ -31,9 +31,9 @@
         .tap-item.dragging { opacity: 0.4; z-index: 50; }
         .tap-item.drag-over .tap-content { border-top: 3px solid var(--accent-color); }
 
-        .circled-number { display: flex; align-items: center; justify-content: center; width: 4.5vh; height: 4.5vh; border-radius: 50%; border: 2px solid var(--accent-color); color: #fff; font-size: 2.2vh; font-weight: bold; margin-right: 1.5vh; flex-shrink: 0; }
+        .circled-number { display: flex; align-items: center; justify-content: center; width: 4.5vh; height: 4.5vh; border-radius: 50%; background: rgba(128, 0, 32, 0.1); border: 2px solid rgba(128, 0, 32, 0.6); color: #fff; font-size: 2vh; font-weight: 700; margin-right: 1.5vh; flex-shrink: 0; }
 
-        .tap-content { position: relative; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%); border: 1px solid rgba(128, 0, 32, 0.4); border-radius: 1vh; padding: 0.6vh 1.2vh; height: 8.8vh; box-sizing: border-box; flex-grow: 1; transition: border 0.2s; }
+        .tap-content { position: relative; display: flex; justify-content: space-between; align-items: center; background: #121212; border: 1px solid #2a2a2a; border-radius: 1.2vh; padding: 0 1.5vh; height: 9.5vh; box-sizing: border-box; flex-grow: 1; transition: border 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         .tap-menu-container { position: absolute; top: 0.5vh; right: 0.8vh; z-index: 35; display: none; }
         body.edit-mode .tap-menu-container { display: block; }
@@ -50,27 +50,27 @@
         .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
 
-        .beer-info { display: flex; flex-direction: row; width: 55%; align-items: flex-start; }
+        .beer-info { display: flex; flex-direction: row; width: 56%; align-items: center; height: 100%; }
 
-        .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
+        .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; justify-content: center; height: 100%; }
         .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding: 0; margin: 0; }
         .editable-input[readonly] { cursor: default; pointer-events: none; }
         
-        .name-input { font-size: 2.5vh; color: #fff; line-height: 1.1; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; }
-        .style-input { font-size: 1.8vh; color: #ccc; font-weight: 600; }
+        .name-input { font-size: 2.6vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.4vh; text-transform: uppercase; letter-spacing: 0.02em; }
+        .style-input { font-size: 1.5vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.6vh; }
         
-        .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #777; gap: 0.8vh; font-weight: 400; margin-top: 2px; }
-        .brewery-input { font-size: 1.4vh; color: var(--gray-text); font-weight: 600; min-width: 10vh; max-width: 18vh; }
+        .beer-details-row { display: flex; align-items: center; font-size: 1.3vh; color: #666; gap: 0.8vh; font-weight: 500; }
+        .brewery-input { font-size: 1.4vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 18vh; }
         
-        .val-highlight { font-size: 1.8vh; color: #eee; font-weight: 600; }
-        .lbl-bold { font-weight: 700; color: #d4d4d4; }
+        .val-highlight { font-size: 1.6vh; color: #fff; font-weight: 700; }
+        .lbl-bold { font-weight: 700; color: #777; }
 
-        .glass-select { background: transparent; color: var(--gray-text); border: none; font-family: inherit; font-size: 1.4vh; font-weight: 600; cursor: pointer; appearance: none; outline: none; padding: 0; margin: 0; min-width: 8vh; text-align: center; }
+        .glass-select { background: transparent; color: #777; border: none; font-family: inherit; font-size: 1.1vh; font-weight: 700; cursor: pointer; appearance: none; outline: none; padding: 0; margin-top: 0.4vh; min-width: 8vh; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
         .glass-select option { background: #111; color: white; }
 
-        .price-column { display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; border-left: 1px solid #222; }
-        .price-wrapper { display: flex; align-items: baseline; font-size: 2.4vh; color: #fff; font-weight: 700; }
-        .price-label-text { font-size: 1.2vh; color: #555; text-transform: uppercase; margin-top: 0.1vh; font-weight: 600; }
+        .price-column { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 20%; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 65%; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 2.6vh; color: #fff; font-weight: 700; }
+        .price-label-text { font-size: 1.1vh; color: #777; text-transform: uppercase; margin-top: 0.4vh; font-weight: 700; letter-spacing: 0.05em; }
 
         #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
 
@@ -109,7 +109,7 @@
             .tap-item { margin-bottom: 1.5vh; }
             .tap-content { height: auto; padding: 2vh; flex-wrap: wrap; }
             .beer-info { width: 100%; margin-bottom: 1.5vh; }
-            .price-column { width: 48%; border-left: none; }
+            .price-column { width: 48%; border-left: none; height: auto; padding-top: 1vh; }
         }
     </style>
 </head>
@@ -223,7 +223,6 @@
             mainAdminBtn.innerText = isShowing ? '❌ Закрыть' : '🛠️ Управление данными';
         };
 
-        // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ СЖАТИЯ КАРТИНОК ---
         function compressImage(file, maxSize, callback) {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -254,7 +253,6 @@
             reader.readAsDataURL(file);
         }
 
-        // ЗАГРУЗКА И СЖАТИЕ ЛОГОТИПА БАРА (Макс. размер 400px)
         document.getElementById('logo-container').onclick = () => {
             if (isEditMode) document.getElementById('logo-file-input').click();
         };
@@ -461,7 +459,6 @@
                     const i = el.dataset.i, f = el.dataset.f;
                     let val = el.tagName === 'INPUT' ? el.value : el.innerText;
                     
-                    // Форматирование текста: Название капсом, Описание и Пивоварня с заглавной буквы
                     if (f === 'name' && val) {
                         val = val.toUpperCase();
                         if (el.tagName === 'INPUT') el.value = val; else el.innerText = val;
