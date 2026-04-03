@@ -1,0 +1,8 @@
+{
+  "name": "valhalla-taplist",
+  "version": "1.0.0",
+  "scripts": {},
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
