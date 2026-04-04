@@ -83,7 +83,7 @@
         .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
         
-        .beer-info { display: flex; flex-direction: row; width: 58%; align-items: center; height: 100%; }
+        .beer-info { display: flex; flex-direction: row; width: 62%; align-items: center; height: 100%; }
         
         .brewery-logo-wrapper { 
             position: relative; width: 7.5vh; height: 7.5vh; margin-right: 1.5vh; 
@@ -115,17 +115,17 @@
         .glass-select { 
             background: transparent; color: #777; border: none; font-family: inherit; 
             font-size: 1.2vh; font-weight: 700; cursor: pointer; appearance: none; 
-            outline: none; padding: 0; margin-top: 0.4vh; min-width: 8vh; 
+            outline: none; padding: 0; margin-top: 0.2vh; min-width: 8vh; 
             text-align: center; text-transform: uppercase; letter-spacing: 0.05em; 
         }
         .glass-select option { background: #111; color: white; }
         
         .price-column { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 18%; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 75%; 
+            width: 22%; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 90%; 
         }
-        .price-wrapper { display: flex; align-items: baseline; font-size: 3.2vh; color: #fff; font-weight: 700; }
-        .price-label-text { font-size: 1.2vh; color: #777; text-transform: uppercase; margin-top: 0.4vh; font-weight: 700; letter-spacing: 0.05em; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 2.4vh; color: #fff; font-weight: 700; }
+        .price-label-text { font-size: 1.1vh; color: #777; text-transform: uppercase; margin-top: 0.2vh; font-weight: 700; letter-spacing: 0.05em; }
         
         #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2.2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
         
@@ -413,12 +413,15 @@
                             </div>
                         </div>
                         <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
-                            <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${glassOptions.map(opt => `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`).join('')}</select>
-                        </div>
-                        <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
-                            <div class="price-label-text">1 Л. НАВЫНОС</div>
+                            <div style="margin-bottom: 1vh;">
+                                <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
+                                <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${glassOptions.map(opt => `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`).join('')}</select>
+                            </div>
+                            <div style="border-top: 1px solid rgba(255,255,255,0.05); width: 60%; margin: 0.5vh 0;"></div>
+                            <div>
+                                <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
+                                <div class="price-label-text">1 Л. НАВЫНОС</div>
+                            </div>
                         </div>
                     </div>
                 </div>`;
