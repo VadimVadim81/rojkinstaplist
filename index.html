@@ -17,8 +17,8 @@
         
         header { 
             display: flex; justify-content: space-between; align-items: center; 
-            width: 96%; height: 14vh; position: relative; margin-top: 1vh; 
-            border-bottom: 2px solid rgba(128,0,32,0.3); padding-bottom: 1vh; 
+            width: 96%; height: 12vh; position: relative; margin-top: 1vh; 
+            border-bottom: 1px solid rgba(128,0,32,0.2); padding-bottom: 1vh; 
         }
         
         .logo { 
@@ -26,82 +26,145 @@
             justify-content: flex-end; align-items: center; cursor: pointer; transition: opacity 0.2s; 
         }
         .logo:hover { opacity: 0.8; }
-        #logo-text { font-weight: 700; font-size: 3vh; color: var(--accent-color); text-transform: uppercase; }
-        #logo-img { max-height: 12vh; max-width: 100%; object-fit: contain; display: none; filter: drop-shadow(0px 0px 6px rgba(255, 255, 255, 0.8)); }
+        #logo-text { font-weight: 700; font-size: 2.5vh; color: var(--accent-color); text-transform: uppercase; }
+        #logo-img { max-height: 10vh; max-width: 100%; object-fit: contain; display: none; filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.9)); }
         
         .main-title { 
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); 
-            text-transform: uppercase; font-size: 4vh; letter-spacing: 0.15em; 
+            text-transform: uppercase; font-size: 3.5vh; letter-spacing: 0.1em; 
             font-weight: 700; text-align: center; white-space: nowrap; margin: 0; 
-            cursor: pointer; user-select: none; z-index: 20; color: #fff;
+            cursor: pointer; user-select: none; z-index: 20; 
         }
         
         #columns-container { 
-            display: flex; width: 98%; flex-grow: 1; justify-content: space-between; 
-            margin-top: 2vh; overflow: hidden; padding: 0 1%;
+            display: flex; width: 96%; flex-grow: 1; justify-content: space-between; 
+            margin-top: 2vh; overflow: hidden; 
         }
         .column { width: 49%; display: flex; flex-direction: column; }
         
-        .tap-item { position: relative; display: flex; align-items: center; margin-bottom: 1.2vh; transition: opacity 0.2s; }
+        .tap-item { position: relative; display: flex; align-items: center; margin-bottom: 0.8vh; transition: opacity 0.2s; }
+        .tap-item.dragging { opacity: 0.4; z-index: 50; }
+        .tap-item.drag-over .tap-content { border-top: 3px solid var(--accent-color); }
         
         .circled-number { 
             display: flex; align-items: center; justify-content: center; 
-            width: 5.5vh; height: 5.5vh; border-radius: 50%; 
-            background: rgba(128, 0, 32, 0.15); border: 3px solid rgba(128, 0, 32, 0.8); 
+            width: 5vh; height: 5vh; border-radius: 50%; 
+            background: rgba(128, 0, 32, 0.1); border: 2px solid rgba(128, 0, 32, 0.6); 
             color: #fff; font-size: 2.5vh; font-weight: 700; margin-right: 1.5vh; flex-shrink: 0; 
         }
         
         .tap-content { 
             position: relative; display: flex; justify-content: space-between; align-items: center; 
-            background: #111; border: 1px solid #333; border-radius: 1.5vh; 
-            padding: 0 2vh; height: 11.5vh; box-sizing: border-box; flex-grow: 1; 
-            transition: border 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.5); 
+            background: #121212; border: 1px solid #2a2a2a; border-radius: 1.2vh; 
+            padding: 0 1.8vh; height: 11vh; box-sizing: border-box; flex-grow: 1; 
+            transition: border 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }
         
         .tap-menu-container { position: absolute; top: 0.5vh; right: 0.8vh; z-index: 35; display: none; }
         body.edit-mode .tap-menu-container { display: block; }
-        .tap-menu-btn { color: #555; font-size: 3vh; cursor: pointer; padding: 0 5px; }
+        .tap-menu-btn { color: #555; font-size: 2.8vh; cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0 5px; user-select: none; }
+        .tap-menu-btn:hover { color: #fff; }
+        .tap-context-menu { 
+            position: absolute; top: 100%; right: 0; background: #1a1a1a; 
+            border: 1px solid #444; border-radius: 6px; display: none; 
+            flex-direction: column; min-width: 160px; box-shadow: 0 8px 25px rgba(0,0,0,0.8); 
+            z-index: 1000; overflow: hidden; 
+        }
+        .tap-context-menu.show { display: flex; }
+        .tap-context-menu button { background: transparent; border: none; color: #eee; padding: 12px 15px; text-align: left; cursor: pointer; font-family: inherit; font-size: 1.3vh; transition: background 0.2s; }
+        .tap-context-menu button:hover { background: #333; }
+        .btn-menu-danger { color: #ffadad !important; border-top: 1px solid #333 !important; }
         
         .stop-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.75); z-index: 10; pointer-events: none; border-radius: 1.5vh; 
+            background: rgba(0,0,0,0.65); z-index: 10; pointer-events: none; border-radius: 1vh; 
         }
-        .stop-text { color: #fff; font-size: 2.5vh; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
         
-        .beer-info { display: flex; flex-direction: row; flex: 1; align-items: center; height: 100%; overflow: hidden; }
+        .beer-info { display: flex; flex-direction: row; width: 58%; align-items: center; height: 100%; }
         
         .brewery-logo-wrapper { 
-            position: relative; width: 8vh; height: 8vh; margin-right: 2vh; 
-            flex-shrink: 0; display: flex; align-items: center; justify-content: center; 
+            position: relative; width: 7.5vh; height: 7.5vh; margin-right: 1.5vh; 
+            flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
-        .brewery-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .brewery-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.9)); }
+        .logo-placeholder { 
+            font-size: 1vh; color: #444; text-transform: uppercase; border: 1px dashed #333; 
+            border-radius: 4px; padding: 5px; width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center; box-sizing: border-box; 
+        }
+        .brewery-logo-select { 
+            position: absolute; bottom: -2vh; left: -1vh; width: 8.5vh; font-size: 1vh; 
+            display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 2px; 
+        }
+        body.edit-mode .brewery-logo-select { display: block; }
         
-        .text-col { display: flex; flex-direction: column; flex: 1; overflow: hidden; justify-content: center; }
+        .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; justify-content: center; height: 100%; }
+        .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; padding: 0; margin: 0; }
+        .editable-input[readonly] { cursor: default; pointer-events: none; }
         
-        .name-input { font-size: 3.2vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
-        .style-input { font-size: 1.8vh; color: #bbb; font-weight: 500; margin-bottom: 0.5vh; }
-        .beer-details-row { display: flex; align-items: center; font-size: 1.6vh; color: #888; gap: 1vh; }
-        .brewery-input { font-size: 1.7vh; color: #ddd; font-weight: 600; width: auto; flex: 0 1 auto; }
-        .val-highlight { font-size: 1.9vh; color: #fff; font-weight: 700; }
+        .name-input { font-size: 3vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.4vh; text-transform: uppercase; letter-spacing: 0.02em; }
+        .style-input { font-size: 1.8vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.6vh; }
+        .beer-details-row { display: flex; align-items: center; font-size: 1.5vh; color: #666; gap: 0.8vh; font-weight: 500; }
+        .brewery-input { font-size: 1.6vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 22vh; }
+        .val-highlight { font-size: 1.8vh; color: #fff; font-weight: 700; }
+        .lbl-bold { font-weight: 700; color: #777; }
+        
+        .glass-select { 
+            background: transparent; color: #777; border: none; font-family: inherit; 
+            font-size: 1.2vh; font-weight: 700; cursor: pointer; appearance: none; 
+            outline: none; padding: 0; margin-top: 0.4vh; min-width: 8vh; 
+            text-align: center; text-transform: uppercase; letter-spacing: 0.05em; 
+        }
+        .glass-select option { background: #111; color: white; }
         
         .price-column { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 18%; text-align: center; border-left: 1px solid rgba(255,255,255,0.1); height: 70%; 
+            width: 18%; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 75%; 
         }
-        .price-wrapper { display: flex; align-items: baseline; font-size: 3.5vh; color: #fff; font-weight: 700; }
-        .price-label-text { font-size: 1.2vh; color: #777; text-transform: uppercase; margin-top: 0.5vh; font-weight: 700; letter-spacing: 0.05em; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 3.2vh; color: #fff; font-weight: 700; }
+        .price-label-text { font-size: 1.2vh; color: #777; text-transform: uppercase; margin-top: 0.4vh; font-weight: 700; letter-spacing: 0.05em; }
         
-        .glass-select { 
-            background: transparent; color: #888; border: none; font-family: inherit; 
-            font-size: 1.3vh; font-weight: 700; cursor: pointer; text-transform: uppercase; 
-        }
-
-        #custom-footer { width: 96%; margin: 1vh 0; padding: 1vh; font-size: 2.5vh; color: #fff; text-align: center; font-weight: 700; }
+        #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2.2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
         
-        /* Modals and Admin */
-        #admin-menu-wrapper { position: fixed; bottom: 2vh; right: 2vh; display: none; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 100; }
+        #admin-menu-wrapper { position: relative; display: none; flex-direction: column; align-items: flex-end; gap: 8px; margin-top: 4vh; align-self: flex-end; z-index: 100; }
         body.edit-mode #admin-menu-wrapper { display: flex; }
+        .btn-main-menu { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 1.1vh; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .btn-main-menu:hover { background: #2a2a2a; border-color: #666; }
+        .btn-main-menu.active { background: var(--accent-color); border-color: #fff; }
+        #admin-actions-list { 
+            display: none; flex-direction: column; gap: 6px; background: rgba(20,20,20,0.95); 
+            padding: 10px; border-radius: 8px; border: 1px solid #333; backdrop-filter: blur(5px); 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.7); position: absolute; bottom: 110%; right: 0; 
+        }
+        #admin-actions-list.show { display: flex; }
+        .btn-control { background: #222; color: #aaa; border: 1px solid #444; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 1.3vh; transition: 0.15s; min-width: 200px; text-align: left; display: flex; align-items: center; gap: 8px; }
+        .btn-control:hover { background: #333; color: #fff; border-color: #666; }
+        .btn-danger { color: #ffadad; border-color: #600; }
+        .btn-danger:hover { background: #500; color: #fff; border-color: #a00; }
+        .admin-modal { pointer-events: auto !important; z-index: 1000; display: none; }
+        .modal-content-box { position: relative; background: #1a1a1a; padding: 3vh; border-radius: 1vh; width: 60%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; }
+        .btn-close-x { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #666; font-size: 4vh; cursor: pointer; transition: color 0.2s; }
+        .btn-close-x:hover { color: #fff; }
+        .btn-trash { background: none; border: none; cursor: pointer; font-size: 2.2vh; filter: grayscale(1); transition: 0.2s; padding: 5px; }
+        .btn-trash:hover { filter: grayscale(0); transform: scale(1.1); }
+
+        body.edit-mode .editable { border-bottom: 1px dashed #444; min-width: 20px; padding: 0 4px; }
+        body.edit-mode .editable-input { border-bottom: 1px dashed #444; }
+        body.edit-mode #custom-footer { border-color: rgba(255, 255, 255, 0.2); }
+        body.edit-mode .glass-select { border-bottom: 1px dashed #444; appearance: auto; }
+        body.edit-mode .editable:focus, body.edit-mode .editable-input:focus { outline: none; background: rgba(255,255,255,0.05); border-radius: 3px; }
+        body.edit-mode .tap-item { cursor: grab; }
+        
+        #save-status { 
+            position: fixed; bottom: 3vh; right: 220px; font-size: 1.2vh; color: #444; 
+            background: rgba(255, 255, 255, 0.9); padding: 5px 10px; border-radius: 4px; 
+            opacity: 0; transition: 0.5s; z-index: 90; display: none; font-weight: 700; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+        }
+        body.edit-mode #save-status { display: block; }
     </style>
 </head>
 <body>
@@ -124,27 +187,33 @@
     <div id="custom-footer" class="editable" contenteditable="false"></div>
 
     <div id="admin-menu-wrapper">
-        <div id="admin-actions-list" style="display: none; flex-direction: column; gap: 6px; background: rgba(20,20,20,0.95); padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 10px;">
-            <button class="btn-control" id="manage-logos-btn" style="background: #222; color: #fff; border: 1px solid #444; padding: 10px; cursor: pointer;">🖼️ Управление логотипами</button>
-            <button class="btn-control btn-danger" id="clear-names-btn" style="background: #222; color: #ffadad; border: 1px solid #600; padding: 10px; cursor: pointer;">🧹 Очистить базу</button>
+        <div id="admin-actions-list">
+            <button class="btn-control" id="manage-logos-btn">🖼️ Управление логотипами</button>
+            <div style="height:1px; background:#333; margin: 4px 0;"></div>
+            <button class="btn-control" id="export-btn">💾 Экспорт файла бэкапа</button>
+            <button class="btn-control" id="import-btn">📂 Загрузить из файла</button>
+            <div style="height:1px; background:#333; margin: 4px 0;"></div>
+            <button class="btn-control btn-danger" id="clear-names-btn">🧹 Очистить базу имен</button>
+            <button class="btn-control btn-danger" id="clear-breweries-btn">🧹 Очистить базу пивоварен</button>
         </div>
-        <button class="btn-main-menu" id="main-admin-btn" style="background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🛠️ Меню</button>
+        <button class="btn-main-menu" id="main-admin-btn">🛠️ Управление данными</button>
     </div>
 
-    <div id="logo-modal" class="stop-overlay admin-modal" style="display: none; pointer-events: auto;">
+    <div id="logo-modal" class="stop-overlay admin-modal">
         <div class="modal-content-box">
             <button class="btn-close-x" onclick="document.getElementById('logo-modal').style.display='none'">×</button>
-            <h3 style="margin-top:0;">Логотипы</h3>
-            <button class="btn-control" onclick="document.getElementById('modal-logo-upload').click()">➕ Загрузить</button>
-            <div id="logo-list" style="margin-top: 2vh;"></div>
+            <h3 style="margin-top:0;">Логотипы пивоварен</h3>
+            <button class="btn-control" onclick="document.getElementById('modal-logo-upload').click()">➕ Загрузить в облако</button>
+            <div id="logo-list" style="margin-top: 2vh; display: flex; flex-direction: column; gap: 1vh;"></div>
         </div>
     </div>
 
     <datalist id="dl-names"></datalist>
     <datalist id="dl-breweries"></datalist>
+    <input type="file" id="file-input" style="display:none" accept=".json">
     <input type="file" id="quick-logo-upload" style="display:none" accept="image/*">
     <input type="file" id="modal-logo-upload" style="display:none" accept="image/*">
-    <div id="save-status" style="position: fixed; bottom: 2vh; left: 2vh; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 5px; display: none; font-size: 1.5vh;">Сохранено</div>
+    <div id="save-status">Сохранено</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -189,6 +258,7 @@
             const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
                 method: 'POST', body: formData
             });
+            if (!res.ok) throw new Error();
             const data = await res.json();
             return data.secure_url;
         }
@@ -196,66 +266,79 @@
         document.getElementById('logo-container').onclick = () => isEditMode && document.getElementById('logo-file-input').click();
         document.getElementById('logo-file-input').onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
+            saveStatus.innerText = "Загрузка..."; saveStatus.style.opacity = 1;
             try {
                 appData.logoBase64 = await uploadToCloudinary(file);
                 save(); render();
-            } catch (err) { alert("Ошибка загрузки!"); }
+            } catch (err) { alert("Ошибка Cloudinary!"); }
+            saveStatus.style.opacity = 0; e.target.value = "";
         };
 
         mainAdminBtn.onclick = e => {
             e.stopPropagation();
-            const show = adminActionsList.style.display === 'none';
-            adminActionsList.style.display = show ? 'flex' : 'none';
+            const isShowing = adminActionsList.classList.toggle('show');
+            mainAdminBtn.innerText = isShowing ? '❌ Закрыть' : '🛠️ Управление данными';
         };
 
         document.getElementById('manage-logos-btn').onclick = () => {
-            renderLogoManager(); 
-            document.getElementById('logo-modal').style.display = 'flex';
+            pendingTapIndex = null; 
+            renderLogoManager(); document.getElementById('logo-modal').style.display = 'flex';
+            adminActionsList.classList.remove('show');
         };
 
         function renderLogoManager() {
             const list = document.getElementById('logo-list'); list.innerHTML = '';
             Object.entries(appData.breweryLogos || {}).forEach(([name, url]) => {
-                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; background:#222; padding:10px; border-radius:5px;">
-                    <img src="${url}" style="width:40px; height:40px; object-fit:contain; margin-right:10px;">
-                    <span>${name}</span>
-                    <button onclick="deleteLogo('${name}')" style="background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">🗑️</button>
+                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:1vh 1.5vh; border-radius:4px;">
+                    <div style="display:flex; align-items:center; gap:15px;"><img src="${url}" style="width:5vh; height:5vh; object-fit:contain;"><span>${name}</span></div>
+                    <button class="btn-trash" onclick="deleteLogo('${name}')" title="Удалить логотип">🗑️</button>
                 </div>`;
             });
         }
 
         window.deleteLogo = name => {
-            if (confirm("Удалить логотип?")) {
+            if (confirm(`Удалить логотип "${name}" отовсюду?`)) {
                 delete appData.breweryLogos[name];
-                appData.taps.forEach(t => { if(t.breweryLogoName === name) t.breweryLogoName = ""; });
+                (appData.taps || []).forEach(t => { if(t.breweryLogoName === name) t.breweryLogoName = ""; });
                 save(); render(); renderLogoManager();
             }
         };
 
         async function handleQuickLogo(e) {
             const file = e.target.files[0]; if (!file) return;
-            const name = prompt("Название пивоварни:");
+            const name = prompt("Название пивоварни для нового логотипа:");
             if (name) {
-                const url = await uploadToCloudinary(file);
-                if (!appData.breweryLogos) appData.breweryLogos = {};
-                appData.breweryLogos[name] = url;
-                if (pendingTapIndex !== null) appData.taps[pendingTapIndex].breweryLogoName = name;
-                save(); render(); renderLogoManager();
+                saveStatus.innerText = "Облако..."; saveStatus.style.opacity = 1;
+                try {
+                    const url = await uploadToCloudinary(file);
+                    if (!appData.breweryLogos) appData.breweryLogos = {};
+                    appData.breweryLogos[name] = url;
+                    if (pendingTapIndex !== null) appData.taps[pendingTapIndex].breweryLogoName = name;
+                    save(); render();
+                    if (document.getElementById('logo-modal').style.display === 'flex') renderLogoManager();
+                } catch (err) { alert("Ошибка загрузки"); }
+                saveStatus.style.opacity = 0;
             }
+            e.target.value = "";
         }
         document.getElementById('modal-logo-upload').onchange = handleQuickLogo;
         document.getElementById('quick-logo-upload').onchange = handleQuickLogo;
 
+        document.body.addEventListener('click', () => {
+            adminActionsList.classList.remove('show');
+            document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
+        });
+
         document.getElementById('title-trigger').onclick = () => {
             if (isEditMode) {
-                if (confirm("Выйти из редактирования?")) {
+                if (confirm("Выйти из режима редактирования?")) {
                     isEditMode = false; document.body.classList.remove('edit-mode'); render();
                 }
             } else if (isApproved) {
                 isEditMode = true; document.body.classList.add('edit-mode'); render();
             } else {
-                const name = prompt("Доступ:");
-                if (name) fetch('/api/request-access', { method: 'POST', body: JSON.stringify({ deviceId, name }) });
+                const name = prompt("Имя для доступа:");
+                if (name) fetch('/api/request-access', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId, name }) });
             }
         };
 
@@ -268,15 +351,19 @@
                     save();
                 }
                 render();
+            } else {
+                for(let i=1; i<=12; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
+                save();
             }
         });
 
         function save() {
-            set(dbRef, appData).then(() => {
-                saveStatus.style.display = 'block';
-                setTimeout(() => saveStatus.style.display = 'none', 1000);
-            });
+            appData.lastEditorId = deviceId;
+            saveStatus.style.opacity = 1;
+            set(dbRef, appData).then(() => setTimeout(() => saveStatus.style.opacity = 0, 1000));
         }
+
+        const glassOptions = ["Бокал 0,33", "Бокал 0,4", "Бокал 0,5"];
 
         function render() {
             if (appData.logoBase64) { logoImg.src = appData.logoBase64; logoImg.style.display = 'block'; logoTxt.style.display = 'none'; }
@@ -286,91 +373,107 @@
             footerEl.innerText = appData.footer || "";
             footerEl.contentEditable = isEditMode;
 
+            document.getElementById('dl-names').innerHTML = (appData.knownNames || []).map(n => `<option value="${n}">`).join('');
+            document.getElementById('dl-breweries').innerHTML = (appData.knownBreweries || []).map(b => `<option value="${b}">`).join('');
+
             const lCol = document.getElementById('left-column'), rCol = document.getElementById('right-column');
             lCol.innerHTML = ''; rCol.innerHTML = '';
 
-            appData.taps.slice(0, 12).forEach((t, i) => {
+            (appData.taps || []).slice(0, 12).forEach((t, i) => {
                 const isStopped = t.isStopped === true;
                 const logoSrc = t.breweryLogoName && appData.breweryLogos ? appData.breweryLogos[t.breweryLogoName] : '';
                 let logoOptions = `<option value="">Нет лого</option>`;
                 Object.keys(appData.breweryLogos || {}).forEach(k => logoOptions += `<option value="${k}" ${t.breweryLogoName===k?'selected':''}>${k}</option>`);
                 logoOptions += `<option value="__UPLOAD__">➕ Загрузить...</option>`;
 
-                const html = `<div class="tap-item" data-i="${i}">
+                const html = `<div class="tap-item" data-i="${i}" draggable="${isEditMode && !isStopped}">
                     <div class="circled-number">${t.number}</div>
                     <div class="tap-content">
                         ${isStopped ? '<div class="stop-overlay"><div class="stop-text">СКОРО ТУТ БУДЕТ ПИВО</div></div>' : ''}
                         <div class="tap-menu-container">
-                            <div class="tap-menu-btn" onclick="toggleTapMenu(${i})">⋮</div>
-                            <div class="tap-context-menu" id="menu-${i}" style="display:none; position:absolute; right:0; background:#1a1a1a; border:1px solid #444; z-index:100;">
-                                <button onclick="toggleStop(${i})" style="display:block; width:100%; padding:10px; background:none; color:white; border:none; text-align:left;">${isStopped ? 'Вкл' : 'Выкл'}</button>
-                                <button onclick="clearTap(${i})" style="display:block; width:100%; padding:10px; background:none; color:red; border:none; text-align:left;">Очистить</button>
+                            <div class="tap-menu-btn" data-i="${i}">⋮</div>
+                            <div class="tap-context-menu" id="menu-${i}">
+                                <button class="btn-menu-stop" data-i="${i}">${isStopped ? '▶ Снять' : '⏸ Стоп'}</button>
+                                <button class="btn-menu-danger" data-i="${i}">🧹 Очистить</button>
                             </div>
                         </div>
                         <div class="beer-info ${isStopped ? 'blurred-content' : ''}">
                             <div class="brewery-logo-wrapper">
                                 ${logoSrc ? `<img src="${logoSrc}" class="brewery-logo-img">` : `<div class="logo-placeholder"></div>`}
-                                ${isEditMode ? `<select class="brewery-logo-select" onchange="changeLogo(${i}, this.value)">${logoOptions}</select>` : ''}
+                                ${isEditMode ? `<select class="brewery-logo-select" data-i="${i}" data-f="breweryLogoName">${logoOptions}</select>` : ''}
                             </div>
                             <div class="text-col">
-                                <input type="text" class="editable-input name-input" value="${t.name||''}" placeholder="НАЗВАНИЕ" onblur="updateTap(${i}, 'name', this.value)" ${!isEditMode?'readonly':''}>
-                                <input type="text" class="editable-input style-input" value="${t.style||''}" placeholder="Описание" onblur="updateTap(${i}, 'style', this.value)" ${!isEditMode?'readonly':''}>
+                                <input type="text" class="editable-input name-input" data-i="${i}" data-f="name" list="dl-names" value="${t.name||''}" placeholder="НАЗВАНИЕ" ${!isEditMode?'readonly':''}>
+                                <input type="text" class="editable-input style-input" data-i="${i}" data-f="style" value="${t.style||''}" placeholder="Описание" ${!isEditMode?'readonly':''}>
                                 <div class="beer-details-row">
-                                    <input type="text" class="editable-input brewery-input" value="${t.brewery||''}" placeholder="Пивоварня" onblur="updateTap(${i}, 'brewery', this.value)" ${!isEditMode?'readonly':''}>
-                                    <span>|</span> ABV <span class="val-highlight">${t.abv||'0'}%</span>
-                                    <span>|</span> IBU <span class="val-highlight">${t.ibu||'0'}</span>
+                                    <input type="text" class="editable-input brewery-input" data-i="${i}" data-f="brewery" list="dl-breweries" value="${t.brewery||''}" placeholder="Пивоварня" ${!isEditMode?'readonly':''}>
+                                    <span>|</span> <span class="lbl-bold">ABV</span> <span class="editable val-highlight" contenteditable="${isEditMode}" data-i="${i}" data-f="abv">${t.abv||'0'}</span>%
+                                    <span>|</span> <span class="lbl-bold">IBU</span> <span class="editable val-highlight" contenteditable="${isEditMode}" data-i="${i}" data-f="ibu">${t.ibu||'0'}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div class="price-wrapper"><input type="text" class="editable-input" style="text-align:center; width:100%; font-size:3.5vh;" value="${t.glassPrice||''}" onblur="updateTap(${i}, 'glassPrice', this.value)" ${!isEditMode?'readonly':''}></div>
-                            <div class="price-label-text">${t.glassLabel || 'Бокал 0,5'}</div>
+                            <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
+                            <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${glassOptions.map(opt => `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`).join('')}</select>
                         </div>
                         <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div class="price-wrapper"><input type="text" class="editable-input" style="text-align:center; width:100%; font-size:3.5vh;" value="${t.litrePrice||''}" onblur="updateTap(${i}, 'litrePrice', this.value)" ${!isEditMode?'readonly':''}></div>
+                            <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
                             <div class="price-label-text">1 Л. НАВЫНОС</div>
                         </div>
                     </div>
                 </div>`;
                 if (i < 6) lCol.innerHTML += html; else rCol.innerHTML += html;
             });
+
             rCol.appendChild(adminWrapper);
+
+            document.querySelectorAll('.editable, .editable-input').forEach(el => {
+                el.onblur = () => {
+                    const i = el.dataset.i, f = el.dataset.f;
+                    let val = el.tagName === 'INPUT' ? el.value : el.innerText;
+                    if (f === 'name' && val) val = val.toUpperCase();
+                    else if ((f === 'style' || f === 'brewery') && val) val = val.charAt(0).toUpperCase() + val.slice(1);
+                    if (i !== undefined) {
+                        appData.taps[i][f] = val;
+                        if (f === 'litrePrice' && !isNaN(parseFloat(val))) appData.taps[i].glassPrice = Math.round((parseFloat(val)/2)+70).toString();
+                    }
+                    else if (el.id === 'logo-text') appData.logoText = val;
+                    else if (el.id === 'custom-footer') appData.footer = val;
+                    save(); render();
+                };
+            });
+
+            document.querySelectorAll('select.brewery-logo-select').forEach(sel => sel.onchange = () => {
+                const i = sel.dataset.i;
+                if (sel.value === '__UPLOAD__') { 
+                    pendingTapIndex = i; 
+                    document.getElementById('quick-logo-upload').click(); 
+                    sel.value = "";
+                } else { 
+                    appData.taps[i].breweryLogoName = sel.value; 
+                    save(); render(); 
+                }
+            });
+
+            document.querySelectorAll('.tap-menu-btn').forEach(btn => btn.onclick = e => { 
+                e.stopPropagation(); 
+                document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
+                document.getElementById(`menu-${btn.dataset.i}`).classList.add('show'); 
+            });
+            document.querySelectorAll('.btn-menu-stop').forEach(btn => btn.onclick = (e) => { 
+                e.stopPropagation();
+                appData.taps[btn.dataset.i].isStopped = !appData.taps[btn.dataset.i].isStopped; 
+                save(); render(); 
+            });
+            document.querySelectorAll('.btn-menu-danger').forEach(btn => btn.onclick = (e) => { 
+                e.stopPropagation();
+                if(confirm("Очистить?")) { 
+                    const i = btn.dataset.i;
+                    appData.taps[i].name = ""; appData.taps[i].brewery = ""; appData.taps[i].style = ""; appData.taps[i].isStopped = true; 
+                    save(); render(); 
+                } 
+            });
         }
-
-        window.toggleTapMenu = i => {
-            const m = document.getElementById(`menu-${i}`);
-            m.style.display = m.style.display === 'none' ? 'block' : 'none';
-        };
-
-        window.updateTap = (i, field, val) => {
-            appData.taps[i][field] = val;
-            save();
-        };
-
-        window.changeLogo = (i, val) => {
-            if (val === '__UPLOAD__') {
-                pendingTapIndex = i;
-                document.getElementById('quick-logo-upload').click();
-            } else {
-                appData.taps[i].breweryLogoName = val;
-                save(); render();
-            }
-        };
-
-        window.toggleStop = i => {
-            appData.taps[i].isStopped = !appData.taps[i].isStopped;
-            save(); render();
-        };
-
-        window.clearTap = i => {
-            appData.taps[i] = { ...appData.taps[i], name:"", brewery:"", style:"", isStopped: true };
-            save(); render();
-        };
-
-        document.getElementById('custom-footer').onblur = function() {
-            appData.footer = this.innerText;
-            save();
-        };
     </script>
 </body>
 </html>
