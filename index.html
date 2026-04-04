@@ -37,13 +37,11 @@
         .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
         .beer-info { display: flex; flex-direction: row; width: 56%; align-items: center; height: 100%; }
-        
         .brewery-logo-wrapper { position: relative; width: 6.5vh; height: 6.5vh; margin-right: 1.5vh; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .brewery-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.9)); }
         .logo-placeholder { font-size: 1vh; color: #444; text-transform: uppercase; border: 1px dashed #333; border-radius: 4px; padding: 5px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .brewery-logo-select { position: absolute; bottom: -2vh; left: -1vh; width: 8.5vh; font-size: 1vh; display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 2px; }
         body.edit-mode .brewery-logo-select { display: block; }
-
         .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; justify-content: center; height: 100%; }
         .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding: 0; margin: 0; }
         .editable-input[readonly] { cursor: default; pointer-events: none; }
@@ -70,9 +68,7 @@
         .btn-control:hover { background: #333; color: #fff; border-color: #666; }
         .btn-danger { color: #ffadad; border-color: #600; }
         .btn-danger:hover { background: #500; color: #fff; border-color: #a00; }
-        
         .admin-modal { pointer-events: auto !important; z-index: 1000; display: none; }
-
         body.edit-mode .editable { border-bottom: 1px dashed #444; min-width: 20px; padding: 0 4px; }
         body.edit-mode .editable-input { border-bottom: 1px dashed #444; }
         body.edit-mode #custom-footer { border-color: rgba(255, 255, 255, 0.2); }
@@ -149,6 +145,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+        // КРЕДЕНШЛЫ
         const cloudinaryCloudName = "dxwldkm95"; 
         const cloudinaryUploadPreset = "vahataplist";
 
@@ -166,14 +163,24 @@
         const db = getDatabase(app);
         const dbRef = ref(db, 'valhallaMenu');
 
+        // Переменные элементов
+        const adminWrapper = document.getElementById('admin-menu-wrapper');
+        const mainAdminBtn = document.getElementById('main-admin-btn');
+        const adminActionsList = document.getElementById('admin-actions-list');
+        const logoImg = document.getElementById('logo-img');
+        const logoTxt = document.getElementById('logo-text');
+        const saveStatus = document.getElementById('save-status');
+
         let deviceId = localStorage.getItem('valhalla_device_id') || ('dev_' + Math.random().toString(36).substr(2, 9));
         localStorage.setItem('valhalla_device_id', deviceId);
 
         let isApproved = false, isEditMode = false, pendingTapIndex = null;
         let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [], breweryLogos: {} };
 
+        // Доступ
         onValue(ref(db, `approved_devices/${deviceId}`), snap => isApproved = snap.exists());
 
+        // Время и погода
         let currentWeatherData = "Загрузка...";
         const updateClock = () => {
             const now = new Date(), tz = { timeZone: 'Asia/Novosibirsk' };
@@ -192,6 +199,7 @@
         setInterval(updateClock, 60000); setInterval(updateWeather, 1800000);
         updateWeather();
 
+        // Cloudinary
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -199,25 +207,24 @@
             const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
                 method: 'POST', body: formData
             });
-            if (!res.ok) throw new Error("Cloudinary error");
+            if (!res.ok) throw new Error();
             const data = await res.json();
             return data.secure_url;
         }
 
+        // Логотип бара
         document.getElementById('logo-container').onclick = () => isEditMode && document.getElementById('logo-file-input').click();
         document.getElementById('logo-file-input').onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
-            const status = document.getElementById('save-status');
-            status.innerText = "Загрузка..."; status.style.opacity = 1;
+            saveStatus.innerText = "Загрузка..."; saveStatus.style.opacity = 1;
             try {
                 appData.logoBase64 = await uploadToCloudinary(file);
                 save(); render();
-            } catch (err) { alert("Ошибка загрузки. Проверьте Cloudinary Preset."); }
-            status.style.opacity = 0; e.target.value = "";
+            } catch (err) { alert("Ошибка Cloudinary! Проверьте Unsigned Preset."); }
+            saveStatus.style.opacity = 0; e.target.value = "";
         };
 
-        const mainAdminBtn = document.getElementById('main-admin-btn');
-        const adminActionsList = document.getElementById('admin-actions-list');
+        // Админка
         mainAdminBtn.onclick = e => {
             e.stopPropagation();
             const isShowing = adminActionsList.classList.toggle('show');
@@ -277,27 +284,22 @@
             } else if (isApproved) {
                 isEditMode = true; document.body.classList.add('edit-mode'); render();
             } else {
-                const name = prompt("Введите имя для доступа:");
+                const name = prompt("Имя для доступа:");
                 if (name) fetch('/api/request-access', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId, name }) });
             }
         };
 
+        // База данных
         onValue(dbRef, snap => {
             const val = snap.val();
             if (val) {
-                // Защита от пустых полей
-                appData = {
-                    ...appData,
-                    ...val,
-                    taps: val.taps || []
-                };
+                appData = { ...appData, ...val, taps: val.taps || [] };
                 if (appData.taps.length === 0) {
                     for(let i=1; i<=12; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
                     save();
                 }
                 render();
             } else {
-                appData.taps = [];
                 for(let i=1; i<=12; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
                 save();
             }
@@ -305,16 +307,15 @@
 
         function save() {
             appData.lastEditorId = deviceId;
-            const s = document.getElementById('save-status'); s.style.opacity = 1;
-            set(dbRef, appData).then(() => setTimeout(() => s.style.opacity = 0, 1000));
+            saveStatus.style.opacity = 1;
+            set(dbRef, appData).then(() => setTimeout(() => saveStatus.style.opacity = 0, 1000));
         }
 
         const glassOptions = ["Бокал 0,33", "Бокал 0,4", "Бокал 0,5"];
 
         function render() {
-            const lImg = document.getElementById('logo-img'), lTxt = document.getElementById('logo-text');
-            if (appData.logoBase64) { lImg.src = appData.logoBase64; lImg.style.display = 'block'; lTxt.style.display = 'none'; }
-            else { lImg.style.display = 'none'; lTxt.style.display = 'block'; lTxt.innerText = appData.logoText || "V&V"; }
+            if (appData.logoBase64) { logoImg.src = appData.logoBase64; logoImg.style.display = 'block'; logoTxt.style.display = 'none'; }
+            else { logoImg.style.display = 'none'; logoTxt.style.display = 'block'; logoTxt.innerText = appData.logoText || "V&V"; }
 
             document.getElementById('custom-footer').innerText = appData.footer || "";
             document.getElementById('dl-names').innerHTML = (appData.knownNames || []).map(n => `<option value="${n}">`).join('');
@@ -323,8 +324,7 @@
             const lCol = document.getElementById('left-column'), rCol = document.getElementById('right-column');
             lCol.innerHTML = ''; rCol.innerHTML = '';
 
-            const taps = appData.taps || [];
-            taps.slice(0, 12).forEach((t, i) => {
+            (appData.taps || []).slice(0, 12).forEach((t, i) => {
                 const isStopped = t.isStopped === true;
                 const logoSrc = t.breweryLogoName && appData.breweryLogos ? appData.breweryLogos[t.breweryLogoName] : '';
                 let logoOptions = `<option value="">Нет лого</option>`;
@@ -369,30 +369,11 @@
                 </div>`;
                 if (i < 6) lCol.innerHTML += html; else rCol.innerHTML += html;
             });
+
+            // Вот тут была ошибка! Теперь adminWrapper определен в начале скрипта.
             rCol.appendChild(adminWrapper);
 
-            // Обработчики
-            document.querySelectorAll('.tap-menu-btn').forEach(btn => btn.onclick = e => { 
-                e.stopPropagation(); 
-                document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
-                document.getElementById(`menu-${btn.dataset.i}`).classList.add('show'); 
-            });
-            document.querySelectorAll('.btn-menu-stop').forEach(btn => btn.onclick = (e) => { 
-                e.stopPropagation();
-                appData.taps[btn.dataset.i].isStopped = !appData.taps[btn.dataset.i].isStopped; 
-                save(); render(); 
-            });
-            document.querySelectorAll('.btn-menu-danger').forEach(btn => btn.onclick = (e) => { 
-                e.stopPropagation();
-                if(confirm("Очистить?")) { 
-                    appData.taps[btn.dataset.i].name = ""; 
-                    appData.taps[btn.dataset.i].brewery = ""; 
-                    appData.taps[btn.dataset.i].style = ""; 
-                    appData.taps[btn.dataset.i].isStopped = true; 
-                    save(); render(); 
-                } 
-            });
-            
+            // Реакция на ввод
             document.querySelectorAll('.editable, .editable-input').forEach(el => {
                 el.onblur = () => {
                     const i = el.dataset.i, f = el.dataset.f;
@@ -410,15 +391,35 @@
             });
 
             document.querySelectorAll('select.brewery-logo-select').forEach(sel => sel.onchange = () => {
-                const i = sel.dataset.i, f = sel.dataset.f;
+                const i = sel.dataset.i;
                 if (sel.value === '__UPLOAD__') { 
                     pendingTapIndex = i; 
                     document.getElementById('quick-logo-upload').click(); 
                     sel.value = "";
                 } else { 
-                    appData.taps[i][f] = sel.value; 
+                    appData.taps[i].breweryLogoName = sel.value; 
                     save(); render(); 
                 }
+            });
+
+            // Кнопки меню тапа
+            document.querySelectorAll('.tap-menu-btn').forEach(btn => btn.onclick = e => { 
+                e.stopPropagation(); 
+                document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
+                document.getElementById(`menu-${btn.dataset.i}`).classList.add('show'); 
+            });
+            document.querySelectorAll('.btn-menu-stop').forEach(btn => btn.onclick = (e) => { 
+                e.stopPropagation();
+                appData.taps[btn.dataset.i].isStopped = !appData.taps[btn.dataset.i].isStopped; 
+                save(); render(); 
+            });
+            document.querySelectorAll('.btn-menu-danger').forEach(btn => btn.onclick = (e) => { 
+                e.stopPropagation();
+                if(confirm("Очистить?")) { 
+                    const i = btn.dataset.i;
+                    appData.taps[i].name = ""; appData.taps[i].brewery = ""; appData.taps[i].style = ""; appData.taps[i].isStopped = true; 
+                    save(); render(); 
+                } 
             });
         }
     </script>
