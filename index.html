@@ -69,6 +69,14 @@
         .btn-danger { color: #ffadad; border-color: #600; }
         .btn-danger:hover { background: #500; color: #fff; border-color: #a00; }
         .admin-modal { pointer-events: auto !important; z-index: 1000; display: none; }
+        
+        /* Новые стили для модалки */
+        .modal-content-box { position: relative; background: #1a1a1a; padding: 3vh; border-radius: 1vh; width: 60%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; }
+        .btn-close-x { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #666; font-size: 4vh; cursor: pointer; transition: color 0.2s; }
+        .btn-close-x:hover { color: #fff; }
+        .btn-trash { background: none; border: none; cursor: pointer; font-size: 2.2vh; filter: grayscale(1); transition: 0.2s; padding: 5px; }
+        .btn-trash:hover { filter: grayscale(0); transform: scale(1.1); }
+
         body.edit-mode .editable { border-bottom: 1px dashed #444; min-width: 20px; padding: 0 4px; }
         body.edit-mode .editable-input { border-bottom: 1px dashed #444; }
         body.edit-mode #custom-footer { border-color: rgba(255, 255, 255, 0.2); }
@@ -124,13 +132,11 @@
     </div>
 
     <div id="logo-modal" class="stop-overlay admin-modal">
-        <div style="background: #1a1a1a; padding: 3vh; border-radius: 1vh; width: 60%; max-height: 80vh; overflow-y: auto; border: 1px solid #444;">
+        <div class="modal-content-box">
+            <button class="btn-close-x" onclick="document.getElementById('logo-modal').style.display='none'">×</button>
             <h3 style="margin-top:0;">Логотипы пивоварен</h3>
             <button class="btn-control" onclick="document.getElementById('modal-logo-upload').click()">➕ Загрузить в облако</button>
             <div id="logo-list" style="margin-top: 2vh; display: flex; flex-direction: column; gap: 1vh;"></div>
-            <div style="margin-top: 3vh; text-align: right;">
-                <button class="btn-control" style="display:inline-block; min-width: auto;" onclick="document.getElementById('logo-modal').style.display='none'">Закрыть</button>
-            </div>
         </div>
     </div>
 
@@ -163,7 +169,6 @@
         const db = getDatabase(app);
         const dbRef = ref(db, 'valhallaMenu');
 
-        // Переменные элементов
         const adminWrapper = document.getElementById('admin-menu-wrapper');
         const mainAdminBtn = document.getElementById('main-admin-btn');
         const adminActionsList = document.getElementById('admin-actions-list');
@@ -177,10 +182,8 @@
         let isApproved = false, isEditMode = false, pendingTapIndex = null;
         let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [], breweryLogos: {} };
 
-        // Доступ
         onValue(ref(db, `approved_devices/${deviceId}`), snap => isApproved = snap.exists());
 
-        // Время и погода
         let currentWeatherData = "Загрузка...";
         const updateClock = () => {
             const now = new Date(), tz = { timeZone: 'Asia/Novosibirsk' };
@@ -199,7 +202,6 @@
         setInterval(updateClock, 60000); setInterval(updateWeather, 1800000);
         updateWeather();
 
-        // Cloudinary
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -212,7 +214,6 @@
             return data.secure_url;
         }
 
-        // Логотип бара
         document.getElementById('logo-container').onclick = () => isEditMode && document.getElementById('logo-file-input').click();
         document.getElementById('logo-file-input').onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
@@ -224,7 +225,6 @@
             saveStatus.style.opacity = 0; e.target.value = "";
         };
 
-        // Админка
         mainAdminBtn.onclick = e => {
             e.stopPropagation();
             const isShowing = adminActionsList.classList.toggle('show');
@@ -232,6 +232,7 @@
         };
 
         document.getElementById('manage-logos-btn').onclick = () => {
+            pendingTapIndex = null; // Обнуляем, чтобы загрузка из модалки не летела на кран
             renderLogoManager(); document.getElementById('logo-modal').style.display = 'flex';
             adminActionsList.classList.remove('show');
         };
@@ -239,32 +240,35 @@
         function renderLogoManager() {
             const list = document.getElementById('logo-list'); list.innerHTML = '';
             Object.entries(appData.breweryLogos || {}).forEach(([name, url]) => {
-                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:1vh; border-radius:4px;">
-                    <div style="display:flex; align-items:center; gap:10px;"><img src="${url}" style="width:4vh; height:4vh; object-fit:contain;"><span>${name}</span></div>
-                    <button class="btn-danger" style="padding:5px 10px;" onclick="deleteLogo('${name}')">Удалить</button>
+                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:1vh 1.5vh; border-radius:4px;">
+                    <div style="display:flex; align-items:center; gap:15px;"><img src="${url}" style="width:5vh; height:5vh; object-fit:contain;"><span>${name}</span></div>
+                    <button class="btn-trash" onclick="deleteLogo('${name}')" title="Удалить логотип">🗑️</button>
                 </div>`;
             });
         }
 
         window.deleteLogo = name => {
-            if (confirm("Удалить логотип?")) {
+            if (confirm(`Удалить логотип "${name}" отовсюду?`)) {
                 delete appData.breweryLogos[name];
-                appData.taps.forEach(t => { if(t.breweryLogoName === name) t.breweryLogoName = ""; });
+                (appData.taps || []).forEach(t => { if(t.breweryLogoName === name) t.breweryLogoName = ""; });
                 save(); render(); renderLogoManager();
             }
         };
 
         async function handleQuickLogo(e) {
             const file = e.target.files[0]; if (!file) return;
-            const name = prompt("Название пивоварни:");
+            const name = prompt("Название пивоварни для нового логотипа:");
             if (name) {
+                saveStatus.innerText = "Облако..."; saveStatus.style.opacity = 1;
                 try {
                     const url = await uploadToCloudinary(file);
                     if (!appData.breweryLogos) appData.breweryLogos = {};
                     appData.breweryLogos[name] = url;
                     if (pendingTapIndex !== null) appData.taps[pendingTapIndex].breweryLogoName = name;
                     save(); render();
+                    if (document.getElementById('logo-modal').style.display === 'flex') renderLogoManager();
                 } catch (err) { alert("Ошибка загрузки"); }
+                saveStatus.style.opacity = 0;
             }
             e.target.value = "";
         }
@@ -289,7 +293,6 @@
             }
         };
 
-        // База данных
         onValue(dbRef, snap => {
             const val = snap.val();
             if (val) {
@@ -370,10 +373,8 @@
                 if (i < 6) lCol.innerHTML += html; else rCol.innerHTML += html;
             });
 
-            // Вот тут была ошибка! Теперь adminWrapper определен в начале скрипта.
             rCol.appendChild(adminWrapper);
 
-            // Реакция на ввод
             document.querySelectorAll('.editable, .editable-input').forEach(el => {
                 el.onblur = () => {
                     const i = el.dataset.i, f = el.dataset.f;
@@ -402,7 +403,6 @@
                 }
             });
 
-            // Кнопки меню тапа
             document.querySelectorAll('.tap-menu-btn').forEach(btn => btn.onclick = e => { 
                 e.stopPropagation(); 
                 document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
