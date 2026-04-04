@@ -101,15 +101,16 @@
         .val-highlight { font-size: 1.6vh; color: #fff; font-weight: 700; }
         
         .price-column { 
-            display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
             width: 26%; min-width: 90px; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); 
-            height: 100%; flex-shrink: 0; box-sizing: border-box; padding: 0.5vh 0;
+            height: 100%; flex-shrink: 0; box-sizing: border-box; gap: 1.2vh;
         }
+        .price-block { display: flex; flex-direction: column; align-items: center; gap: 0.5vh; }
         .price-wrapper { display: flex; align-items: baseline; font-size: 1.9vh; color: #fff; font-weight: 700; line-height: 1; }
-        .price-label-text { font-size: 0.8vh; color: #777; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; line-height: 1; }
+        .price-label-text { font-size: 0.9vh; color: #777; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; line-height: 1; }
         .glass-select { 
             background: transparent; color: #777; border: none; font-family: inherit; 
-            font-size: 0.8vh; font-weight: 700; cursor: pointer; appearance: none; 
+            font-size: 0.9vh; font-weight: 700; cursor: pointer; appearance: none; 
             outline: none; padding: 0; text-align: center; text-transform: uppercase; line-height: 1;
         }
 
@@ -163,7 +164,7 @@
         <button class="btn-main-menu" id="main-admin-btn">🛠️ Управление данными</button>
     </div>
 
-    <div id="logo-modal" class="stop-overlay admin-modal">
+    <div id="logo-modal" class="stop-overlay admin-modal" style="display: none;">
         <div class="modal-content-box">
             <button class="btn-close-x" onclick="document.getElementById('logo-modal').style.display='none'">×</button>
             <h3 style="margin-top:0;">Логотипы пивоварен</h3>
@@ -377,12 +378,12 @@
                             </div>
                         </div>
                         <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div>
+                            <div class="price-block">
                                 <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
                                 <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${glassOptions.map(opt => `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`).join('')}</select>
                             </div>
                             <div style="border-top: 1px solid rgba(255,255,255,0.05); width: 60%; height:1px;"></div>
-                            <div>
+                            <div class="price-block">
                                 <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
                                 <div class="price-label-text">1 Л. НАВЫНОС</div>
                             </div>
