@@ -83,7 +83,7 @@
         .stop-text { color: #fff; font-size: 2.2vh; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .blurred-content { -webkit-filter: blur(6px); filter: blur(6px); opacity: 0.35; pointer-events: none; }
         
-        .beer-info { display: flex; flex-direction: row; width: 62%; align-items: center; height: 100%; }
+        .beer-info { display: flex; flex-direction: row; width: 68%; align-items: center; height: 100%; overflow: hidden; }
         
         .brewery-logo-wrapper { 
             position: relative; width: 7.5vh; height: 7.5vh; margin-right: 1.5vh; 
@@ -102,30 +102,30 @@
         body.edit-mode .brewery-logo-select { display: block; }
         
         .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; justify-content: center; height: 100%; }
-        .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; text-overflow: ellipsis; overflow: hidden; padding: 0; margin: 0; }
+        .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; padding: 0; margin: 0; }
         .editable-input[readonly] { cursor: default; pointer-events: none; }
         
-        .name-input { font-size: 2.5vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.4vh; text-transform: uppercase; letter-spacing: 0.02em; }
-        .style-input { font-size: 1.44vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.6vh; }
+        .name-input { font-size: 2.4vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.4vh; text-transform: uppercase; letter-spacing: 0.02em; white-space: normal; }
+        .style-input { font-size: 1.4vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.6vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .beer-details-row { display: flex; align-items: center; font-size: 1.5vh; color: #666; gap: 0.8vh; font-weight: 500; }
-        .brewery-input { font-size: 1.6vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 22vh; }
+        .brewery-input { font-size: 1.6vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 22vh; overflow: hidden; text-overflow: ellipsis; }
         .val-highlight { font-size: 1.8vh; color: #fff; font-weight: 700; }
         .lbl-bold { font-weight: 700; color: #777; }
         
         .glass-select { 
             background: transparent; color: #777; border: none; font-family: inherit; 
             font-size: 1.2vh; font-weight: 700; cursor: pointer; appearance: none; 
-            outline: none; padding: 0; margin-top: 0.2vh; min-width: 8vh; 
+            outline: none; padding: 0; margin-top: 0.1vh; min-width: 8vh; 
             text-align: center; text-transform: uppercase; letter-spacing: 0.05em; 
         }
         .glass-select option { background: #111; color: white; }
         
         .price-column { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 22%; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 90%; 
+            width: 20%; min-width: 100px; text-align: center; border-left: 1px solid rgba(255,255,255,0.08); height: 95%; flex-shrink: 0;
         }
-        .price-wrapper { display: flex; align-items: baseline; font-size: 2.4vh; color: #fff; font-weight: 700; }
-        .price-label-text { font-size: 1.1vh; color: #777; text-transform: uppercase; margin-top: 0.2vh; font-weight: 700; letter-spacing: 0.05em; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 2.4vh; color: #fff; font-weight: 700; line-height: 1; }
+        .price-label-text { font-size: 1vh; color: #777; text-transform: uppercase; margin-top: 0.1vh; font-weight: 700; letter-spacing: 0.05em; }
         
         #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2.2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
         
@@ -403,7 +403,7 @@
                                 ${isEditMode ? `<select class="brewery-logo-select" data-i="${i}" data-f="breweryLogoName">${logoOptions}</select>` : ''}
                             </div>
                             <div class="text-col">
-                                <input type="text" class="editable-input name-input" data-i="${i}" data-f="name" list="dl-names" value="${t.name||''}" placeholder="НАЗВАНИЕ" ${!isEditMode?'readonly':''}>
+                                <div class="editable-input name-input" data-i="${i}" data-f="name" contenteditable="${isEditMode}">${t.name||''}</div>
                                 <input type="text" class="editable-input style-input" data-i="${i}" data-f="style" value="${t.style||''}" placeholder="Описание" ${!isEditMode?'readonly':''}>
                                 <div class="beer-details-row">
                                     <input type="text" class="editable-input brewery-input" data-i="${i}" data-f="brewery" list="dl-breweries" value="${t.brewery||''}" placeholder="Пивоварня" ${!isEditMode?'readonly':''}>
@@ -413,11 +413,11 @@
                             </div>
                         </div>
                         <div class="price-column ${isStopped ? 'blurred-content' : ''}">
-                            <div style="margin-bottom: 1vh;">
+                            <div style="margin-bottom: 0.2vh;">
                                 <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="glassPrice">${t.glassPrice||''}</span>₽</div>
                                 <select class="glass-select" data-i="${i}" data-f="glassLabel" ${!isEditMode?'style="pointer-events:none"':''}>${glassOptions.map(opt => `<option value="${opt}" ${t.glassLabel===opt?'selected':''}>${opt}</option>`).join('')}</select>
                             </div>
-                            <div style="border-top: 1px solid rgba(255,255,255,0.05); width: 60%; margin: 0.5vh 0;"></div>
+                            <div style="border-top: 1px solid rgba(255,255,255,0.05); width: 60%; margin: 0.4vh 0;"></div>
                             <div>
                                 <div class="price-wrapper"><span class="editable" contenteditable="${isEditMode}" data-i="${i}" data-f="litrePrice">${t.litrePrice||''}</span>₽</div>
                                 <div class="price-label-text">1 Л. НАВЫНОС</div>
@@ -433,7 +433,7 @@
             document.querySelectorAll('.editable, .editable-input').forEach(el => {
                 el.onblur = () => {
                     const i = el.dataset.i, f = el.dataset.f;
-                    let val = el.tagName === 'INPUT' ? el.value : el.innerText;
+                    let val = (el.tagName === 'INPUT') ? el.value : el.innerText;
                     if (f === 'name' && val) val = val.toUpperCase();
                     else if ((f === 'style' || f === 'brewery') && val) val = val.charAt(0).toUpperCase() + val.slice(1);
                     if (i !== undefined) {
