@@ -130,6 +130,19 @@
             opacity: 0; transition: 0.5s; z-index: 90; display: none; font-weight: 700; 
         }
         body.edit-mode #save-status { display: block; }
+        
+        .admin-modal { pointer-events: auto !important; z-index: 1000; display: none; }
+        .modal-content-box { position: relative; background: #1a1a1a; border-radius: 1vh; border: 1px solid #444; }
+        .btn-close-x { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #666; font-size: 4vh; cursor: pointer; transition: color 0.2s; z-index: 10; }
+        .btn-close-x:hover { color: #fff; }
+        .btn-trash { background: none; border: none; cursor: pointer; filter: grayscale(1); transition: 0.2s; }
+        
+        .logo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5vh; overflow-y: auto; align-content: start; }
+        .logo-grid-item { position: relative; aspect-ratio: 1; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 1vh; }
+        .logo-grid-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .logo-grid-item .btn-trash { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; font-size: 4vh; color: #fff; width: 100%; height: 100%; margin: 0; border-radius: 0; }
+        .logo-grid-item:hover .btn-trash { display: flex; }
+        .logo-grid-item .btn-trash:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); filter: grayscale(0); }
     </style>
 </head>
 <body>
@@ -165,11 +178,9 @@
     </div>
 
     <div id="logo-modal" class="stop-overlay admin-modal" style="display: none;">
-        <div class="modal-content-box">
+        <div class="modal-content-box" style="width: 70vh; height: 70vh; padding: 4vh; display: flex; flex-direction: column; box-sizing: border-box;">
             <button class="btn-close-x" onclick="document.getElementById('logo-modal').style.display='none'">×</button>
-            <h3 style="margin-top:0;">Логотипы пивоварен</h3>
-            <button class="btn-control" onclick="document.getElementById('modal-logo-upload').click()">➕ Загрузить в облако</button>
-            <div id="logo-list" style="margin-top: 2vh; display: flex; flex-direction: column; gap: 1vh;"></div>
+            <div id="logo-list" class="logo-grid" style="flex-grow: 1;"></div>
         </div>
     </div>
 
@@ -254,18 +265,60 @@
         function renderLogoManager() {
             const list = document.getElementById('logo-list'); list.innerHTML = '';
             Object.entries(appData.breweryLogos || {}).forEach(([name, url]) => {
-                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:1vh 1.5vh; border-radius:4px;">
-                    <div style="display:flex; align-items:center; gap:15px;"><img src="${url}" style="width:5vh; height:5vh; object-fit:contain;"><span>${name}</span></div>
+                list.innerHTML += `
+                <div class="logo-grid-item" title="${name}">
+                    <img src="${url}">
                     <button class="btn-trash" onclick="deleteLogo('${name}')" title="Удалить логотип">🗑️</button>
                 </div>`;
             });
         }
 
         window.deleteLogo = name => {
-            if (confirm(`Удалить логотип "${name}" отовсюду?`)) {
+            if (confirm(`Удалить логотип "${name}" со всех кранов и из базы?`)) {
                 delete appData.breweryLogos[name];
                 (appData.taps || []).forEach(t => { if(t.breweryLogoName === name) t.breweryLogoName = ""; });
                 save(); render(); renderLogoManager();
+            }
+        };
+
+        document.getElementById('export-btn').onclick = () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "valhalla_backup.json");
+            dlAnchorElem.click();
+        };
+
+        document.getElementById('import-btn').onclick = () => {
+            document.getElementById('file-input').click();
+        };
+
+        document.getElementById('file-input').onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    appData = { ...appData, ...parsed };
+                    save(); render();
+                } catch (err) { alert("Ошибка формата файла бэкапа!"); }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        };
+
+        document.getElementById('clear-names-btn').onclick = () => {
+            if(confirm("Вы уверены, что хотите очистить базу имен пива?")) {
+                appData.knownNames = [];
+                save(); render();
+            }
+        };
+
+        document.getElementById('clear-breweries-btn').onclick = () => {
+            if(confirm("Вы уверены, что хотите очистить базу пивоварен?")) {
+                appData.knownBreweries = [];
+                save(); render();
             }
         };
 
