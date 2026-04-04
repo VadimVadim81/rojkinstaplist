@@ -269,7 +269,6 @@
             document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
         });
 
-        // ПЕРЕНЕСЕННЫЙ ТРИГГЕР АДМИНКИ (на заголовок)
         document.getElementById('title-trigger').onclick = () => {
             if (isEditMode) {
                 if (confirm("Выйти из режима редактирования?")) {
@@ -310,7 +309,10 @@
             if (appData.logoBase64) { logoImg.src = appData.logoBase64; logoImg.style.display = 'block'; logoTxt.style.display = 'none'; }
             else { logoImg.style.display = 'none'; logoTxt.style.display = 'block'; logoTxt.innerText = appData.logoText || "V&V"; }
 
-            document.getElementById('custom-footer').innerText = appData.footer || "";
+            const footerEl = document.getElementById('custom-footer');
+            footerEl.innerText = appData.footer || "";
+            footerEl.contentEditable = isEditMode;
+
             document.getElementById('dl-names').innerHTML = (appData.knownNames || []).map(n => `<option value="${n}">`).join('');
             document.getElementById('dl-breweries').innerHTML = (appData.knownBreweries || []).map(b => `<option value="${b}">`).join('');
 
