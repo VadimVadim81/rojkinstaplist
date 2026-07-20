@@ -6,10 +6,17 @@
     <title>Valhalla On Tap</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent-color: #800020; --gray-text: #999; }
+        :root { 
+            --accent-color: #800020; /* Бургунди */
+            --led-glow: #ffb703; /* Теплый желтый */
+            --gray-text: #999; 
+        }
         
         body { 
-            margin: 0; padding: 0; background: linear-gradient(to bottom, #2a2a2a 0%, #000000 100%); color: white; 
+            margin: 0; padding: 0; 
+            /* Смягчен фон: убран яркий свет по центру, оставлен темный фон с легким оттенком бургунди сверху */
+            background: radial-gradient(ellipse at 50% 0%, rgba(128, 0, 32, 0.15) 0%, #0a0a0a 40%, #000000 100%); 
+            color: white; 
             font-family: 'Montserrat', sans-serif; font-weight: 600; 
             display: flex; flex-direction: column; align-items: center; 
             overflow: hidden; height: 100vh; 
@@ -18,15 +25,28 @@
         header { 
             display: flex; justify-content: space-between; align-items: center; 
             width: 96%; height: 12vh; position: relative; margin-top: 1vh; 
-            border-bottom: 1px solid rgba(128,0,32,0.2); padding-bottom: 1vh; 
+            /* Более мягкий эффект диодной ленты под хедером */
+            border-bottom: 1px solid rgba(255, 183, 3, 0.25); 
+            box-shadow: 0 5px 15px -5px rgba(255, 183, 3, 0.15);
+            padding-bottom: 1vh; 
+            box-sizing: border-box;
         }
+
+        .rune-container { 
+            width: 25%; display: flex; align-items: center; justify-content: flex-start; z-index: 10; cursor: default; 
+            transition: opacity 0.2s;
+        }
+        #rune-symbol { font-size: 4vh; color: var(--led-glow); margin-right: 1.5vh; text-shadow: 0 0 12px rgba(255, 183, 3, 0.7); font-weight: normal; }
+        #rune-info { display: flex; flex-direction: column; text-align: left; justify-content: center; }
+        #rune-name { font-size: 1.8vh; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+        #rune-meaning { font-size: 1.1vh; color: #ddd; max-width: 22vh; line-height: 1.2; font-weight: 500; }
         
         .logo { 
             width: 25%; text-align: right; z-index: 10; display: flex; 
             justify-content: flex-end; align-items: center; cursor: pointer; transition: opacity 0.2s; 
         }
         .logo:hover { opacity: 0.8; }
-        #logo-text { font-weight: 700; font-size: 2.5vh; color: var(--accent-color); text-transform: uppercase; }
+        #logo-text { font-weight: 700; font-size: 2.5vh; color: var(--accent-color); text-transform: uppercase; text-shadow: 0 0 10px rgba(128, 0, 32, 0.5); }
         #logo-img { max-height: 10vh; max-width: 100%; object-fit: contain; display: none; }
         
         .main-title { 
@@ -34,6 +54,8 @@
             text-transform: uppercase; font-size: 3.5vh; letter-spacing: 0.1em; 
             font-weight: 700; text-align: center; white-space: nowrap; margin: 0; 
             cursor: pointer; user-select: none; z-index: 20; 
+            /* Менее агрессивное свечение для лучшей читаемости, добавлена темная тень для контраста */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 12px rgba(255, 183, 3, 0.35); color: #fff;
         }
         
         #columns-container { 
@@ -44,20 +66,23 @@
         
         .tap-item { position: relative; display: flex; align-items: center; margin-bottom: 0.8vh; transition: opacity 0.2s; }
         .tap-item.dragging { opacity: 0.4; z-index: 50; }
-        .tap-item.drag-over .tap-content { border-top: 3px solid var(--accent-color); }
+        .tap-item.drag-over .tap-content { border-top: 3px solid var(--led-glow); box-shadow: 0 -5px 15px rgba(255, 183, 3, 0.3); }
         
         .circled-number { 
             display: flex; align-items: center; justify-content: center; 
             width: 5vh; height: 5vh; border-radius: 50%; 
-            background: rgba(128, 0, 32, 0.1); border: 2px solid rgba(128, 0, 32, 0.6); 
+            /* Акцент бургунди для кругов */
+            background: rgba(128, 0, 32, 0.3); border: 2px solid var(--accent-color); 
+            box-shadow: 0 0 10px rgba(128, 0, 32, 0.5);
             color: #fff; font-size: 2.5vh; font-weight: 700; margin-right: 1.5vh; flex-shrink: 0; 
         }
         
         .tap-content { 
             position: relative; display: flex; justify-content: space-between; align-items: center; 
-            background: #121212; border: 1px solid #2a2a2a; border-radius: 1.2vh; 
+            background: rgba(18, 18, 18, 0.85); border: 1px solid #2a2a2a; border-radius: 1.2vh; 
             padding: 0 1.5vh; height: 11vh; box-sizing: border-box; flex-grow: 1; 
-            transition: border 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden;
+            transition: border 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); overflow: hidden;
+            backdrop-filter: blur(5px);
         }
         
         .tap-menu-container { position: absolute; top: 0.5vh; right: 0.8vh; z-index: 35; display: none; }
@@ -109,7 +134,7 @@
         .style-input { font-size: 1.3vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.5vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #666; gap: 0.7vh; font-weight: 500; }
         .brewery-input { font-size: 1.5vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 20vh; overflow: hidden; text-overflow: ellipsis; }
-        .val-highlight { font-size: 1.6vh; color: #fff; font-weight: 700; }
+        .val-highlight { font-size: 1.6vh; color: #fff; font-weight: 700; text-shadow: 0 0 5px rgba(255, 183, 3, 0.3); }
         .lbl-bold { font-weight: 700; color: #aaa; }
         
         .price-column { 
@@ -118,7 +143,7 @@
             height: 100%; flex-shrink: 0; box-sizing: border-box; gap: 0.8vh;
         }
         .price-block { display: flex; flex-direction: column; align-items: center; gap: 0.5vh; }
-        .price-wrapper { display: flex; align-items: baseline; font-size: 1.9vh; color: #fff; font-weight: 700; line-height: 1; }
+        .price-wrapper { display: flex; align-items: baseline; font-size: 1.9vh; color: #fff; font-weight: 700; line-height: 1; text-shadow: 0 0 5px rgba(255, 183, 3, 0.2); }
         .price-label-text { font-size: 0.55vh; color: #777; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; line-height: 1; }
         .glass-select { 
             background: transparent; color: #777; border: none; font-family: inherit; 
@@ -127,18 +152,19 @@
         }
         .glass-select option { background: #111; color: white; }
 
-        #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2.2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; }
+        #custom-footer { width: 96%; margin: 1vh 0 1.5vh 0; padding: 0.8vh; font-size: 2.2vh; color: white; text-align: center; border: 1px dashed transparent; border-radius: 1vh; min-height: 2.5vh; font-weight: 700; text-shadow: 0 0 10px rgba(255,183,3,0.3); }
         
-        #admin-menu-wrapper { position: fixed; top: 1.5vh; left: 2vh; display: none; flex-direction: column; align-items: flex-start; gap: 8px; z-index: 1000; }
+        /* Смещено вниз, чтобы не перекрывать руну */
+        #admin-menu-wrapper { position: fixed; bottom: 2vh; left: 2vh; top: auto; display: none; flex-direction: column-reverse; align-items: flex-start; gap: 8px; z-index: 1000; }
         body.edit-mode #admin-menu-wrapper { display: flex; }
         .btn-main-menu { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 1.1vh; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .btn-main-menu:hover { background: #2a2a2a; border-color: #666; }
-        .btn-main-menu.active { background: var(--accent-color); border-color: #fff; }
+        .btn-main-menu.active { background: var(--accent-color); border-color: #fff; box-shadow: 0 0 15px rgba(128, 0, 32, 0.8); }
         
         #admin-actions-list { 
             display: none; flex-direction: column; gap: 6px; background: rgba(20,20,20,0.95); 
             padding: 10px; border-radius: 8px; border: 1px solid #333; backdrop-filter: blur(5px); 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.7); position: absolute; top: 110%; left: 0; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.7); position: absolute; bottom: 110%; top: auto; left: 0; 
         }
         #admin-actions-list.show { display: flex; }
         .btn-control { background: #222; color: #aaa; border: 1px solid #444; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 1.3vh; transition: 0.15s; min-width: 200px; text-align: left; display: flex; align-items: center; gap: 8px; }
@@ -174,12 +200,60 @@
         .logo-grid-item .btn-trash { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; font-size: 4vh; color: #fff; width: 100%; height: 100%; margin: 0; border-radius: 0; }
         .logo-grid-item:hover .btn-trash { display: flex; }
         .logo-grid-item .btn-trash:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); filter: grayscale(0); }
+
+        /* Эти стили активируются на смартфонах и в вертикальной ориентации, позволяя прокрутку и перестроение в 1 колонку */
+        @media (max-width: 1024px), (orientation: portrait) {
+            body { 
+                height: auto; 
+                min-height: 100vh; 
+                overflow-y: auto; 
+                overflow-x: hidden; 
+                display: flex; 
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            header { 
+                position: relative; height: auto; min-height: 12vh;
+                display: flex; flex-wrap: wrap;
+                padding: 2vh 4%; width: 100%; box-sizing: border-box; justify-content: space-between;
+                align-items: center;
+            }
+            .main-title { 
+                position: relative; left: 0; top: 0; transform: none; 
+                width: 100%; text-align: center; order: 3; margin-top: 2vh; 
+                font-size: 3vh; white-space: normal; line-height: 1.2;
+            }
+            .rune-container { width: 50% !important; order: 1; justify-content: flex-start !important; }
+            .logo { width: 50% !important; order: 2; justify-content: flex-end !important; }
+            
+            #columns-container { 
+                flex-direction: column; width: 96%; margin: 2vh auto; 
+                overflow: visible; display: flex; flex-grow: 0;
+            }
+            .column { width: 100%; }
+            .tap-content { height: auto; min-height: 11vh; padding: 1.5vh; }
+            .tap-item { margin-bottom: 1.5vh; }
+            
+            .price-column { width: 25%; }
+            .beer-info { width: 70%; }
+            
+            .modal-content-box { width: 90vw !important; height: 80vh !important; padding: 2vh !important; }
+            .logo-grid { grid-template-columns: repeat(2, 1fr); }
+            
+            #admin-menu-wrapper { bottom: 1vh; left: 1vh; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="width: 25%;"></div> 
+        <div class="rune-container" id="rune-container">
+            <div id="rune-symbol"></div>
+            <div id="rune-info">
+                <div id="rune-name"></div>
+                <div id="rune-meaning"></div>
+            </div>
+        </div>
         <div class="main-title" id="title-trigger">СЕГОДНЯ НА КРАНАХ</div>
         <div class="logo" id="logo-container">
             <input type="file" id="logo-file-input" style="display:none" accept="image/*">
@@ -257,6 +331,50 @@
         let isApproved = false, isEditMode = false, pendingTapIndex = null;
         let appData = { taps: [], footer: "Добро пожаловать!", logoText: "V&V", knownNames: [], knownBreweries: [], breweryLogos: {} };
 
+        function updateRune() {
+            const runes = [
+                { s: "ᚠ", n: "Fehu", m: "Богатство, изобилие, успех" },
+                { s: "ᚢ", n: "Uruz", m: "Сила, жизненная энергия, выносливость" },
+                { s: "ᚦ", n: "Thurisaz", m: "Защита, разрушение преград" },
+                { s: "ᚨ", n: "Ansuz", m: "Мудрость, вдохновение, общение" },
+                { s: "ᚱ", n: "Raidho", m: "Путешествие, движение, ритм" },
+                { s: "ᚲ", n: "Kenaz", m: "Факел, озарение, раскрытие" },
+                { s: "ᚷ", n: "Gebo", m: "Дар, партнерство, равновесие" },
+                { s: "ᚹ", n: "Wunjo", m: "Радость, гармония, благополучие" },
+                { s: "ᚺ", n: "Hagalaz", m: "Трансформация, преодоление кризиса" },
+                { s: "ᚾ", n: "Naudhiz", m: "Выносливость, преодоление нужды" },
+                { s: "ᛁ", n: "Isa", m: "Концентрация, пауза, стабильность" },
+                { s: "ᛃ", n: "Jera", m: "Урожай, цикл, вознаграждение" },
+                { s: "ᛇ", n: "Eihwaz", m: "Стойкость, защита, трансформация" },
+                { s: "ᛈ", n: "Perthro", m: "Тайна, судьба, интуиция" },
+                { s: "ᛉ", n: "Algiz", m: "Защита, покровительство богов" },
+                { s: "ᛊ", n: "Sowilo", m: "Солнце, успех, жизненная сила" },
+                { s: "ᛏ", n: "Tiwaz", m: "Справедливость, лидерство" },
+                { s: "ᛒ", n: "Berkana", m: "Рост, возрождение, забота" },
+                { s: "ᛖ", n: "Ehwaz", m: "Движение, прогресс, доверие" },
+                { s: "ᛗ", n: "Mannaz", m: "Человек, интеллект, сотрудничество" },
+                { s: "ᛚ", n: "Laguz", m: "Вода, интуиция, поток" },
+                { s: "ᛝ", n: "Ingwaz", m: "Плодородие, завершение этапа" },
+                { s: "ᛞ", n: "Dagaz", m: "День, прорыв, пробуждение" }
+            ];
+            
+            const now = new Date();
+            const day = (now.getDay() || 7) - 1; 
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - day);
+            monday.setHours(0,0,0,0);
+            
+            // Получаем уникальный индекс на основе текущей недели
+            const weekSeed = Math.floor(monday.getTime() / 86400000);
+            const rune = runes[weekSeed % runes.length];
+            
+            document.getElementById('rune-symbol').innerText = rune.s;
+            document.getElementById('rune-name').innerText = rune.n;
+            document.getElementById('rune-meaning').innerText = rune.m;
+        }
+
+        updateRune(); // Вызываем сразу
+
         onValue(ref(db, `approved_devices/${deviceId}`), snap => isApproved = snap.exists());
 
         async function uploadToCloudinary(file) {
@@ -286,12 +404,15 @@
             e.stopPropagation();
             const isShowing = adminActionsList.classList.toggle('show');
             mainAdminBtn.innerText = isShowing ? '❌ Закрыть' : '🛠️ Управление данными';
+            mainAdminBtn.classList.toggle('active', isShowing);
         };
 
         document.getElementById('manage-logos-btn').onclick = () => {
             pendingTapIndex = null; 
             renderLogoManager(); document.getElementById('logo-modal').style.display = 'flex';
             adminActionsList.classList.remove('show');
+            mainAdminBtn.innerText = '🛠️ Управление данными';
+            mainAdminBtn.classList.remove('active');
         };
 
         function renderLogoManager() {
@@ -377,6 +498,8 @@
 
         document.body.addEventListener('click', () => {
             adminActionsList.classList.remove('show');
+            mainAdminBtn.innerText = '🛠️ Управление данными';
+            mainAdminBtn.classList.remove('active');
             document.querySelectorAll('.tap-context-menu').forEach(m => m.classList.remove('show'));
         });
 
@@ -410,6 +533,7 @@
 
         function save() {
             appData.lastEditorId = deviceId;
+            saveStatus.innerText = "Сохранено";
             saveStatus.style.opacity = 1;
             set(dbRef, appData).then(() => setTimeout(() => saveStatus.style.opacity = 0, 1000));
         }
