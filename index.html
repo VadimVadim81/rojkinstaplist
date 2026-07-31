@@ -9,12 +9,13 @@
         :root { 
             --accent-color: #800020;
             --led-glow: #ffb703;
+            --muted-gold: #a67c00;
             --gray-text: #999; 
         }
         
         body { 
             margin: 0; padding: 0; 
-            background: radial-gradient(ellipse at 50% 0%, rgba(255, 183, 3, 0.075) 0%, #0a0a0a 40%, #000000 100%); 
+            background: radial-gradient(ellipse at 50% 0%, rgba(166, 124, 0, 0.15) 0%, #0a0a0a 40%, #000000 100%); 
             color: white; 
             font-family: 'Montserrat', sans-serif; font-weight: 600; 
             display: flex; flex-direction: column; align-items: center; 
@@ -27,8 +28,8 @@
         header { 
             display: flex; justify-content: space-between; align-items: center; 
             width: 96%; height: 12vh; position: relative; margin-top: 1vh; 
-            border-bottom: 1px solid rgba(255, 183, 3, 0.25); 
-            box-shadow: 0 5px 15px -5px rgba(255, 183, 3, 0.15);
+            border-bottom: 1px solid rgba(166, 124, 0, 0.3); 
+            box-shadow: 0 5px 15px -5px rgba(166, 124, 0, 0.2);
             padding-bottom: 1vh; 
             box-sizing: border-box;
         }
@@ -56,7 +57,7 @@
             text-transform: uppercase; font-size: 3.5vh; letter-spacing: 0.1em; 
             font-weight: 700; text-align: center; white-space: nowrap; margin: 0; 
             cursor: pointer; user-select: none; z-index: 20; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 12px rgba(255, 183, 3, 0.35); color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 12px rgba(166, 124, 0, 0.45); color: #fff;
         }
         
         #columns-container { 
@@ -72,8 +73,8 @@
         .circled-number { 
             display: flex; align-items: center; justify-content: center; 
             width: 5vh; height: 5vh; border-radius: 50%; 
-            background: rgba(255, 183, 3, 0.3); border: 2px solid var(--led-glow); 
-            box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+            background: rgba(166, 124, 0, 0.25); border: 2px solid var(--muted-gold); 
+            box-shadow: 0 0 10px rgba(166, 124, 0, 0.3);
             color: #fff; font-size: 2.5vh; font-weight: 700; margin-right: 1.5vh; flex-shrink: 0; 
         }
         
@@ -126,12 +127,13 @@
         }
         body.edit-mode .brewery-logo-select { display: block; }
         
-        .text-col { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; justify-content: center; height: 100%; }
+        .text-col { display: flex; flex-direction: column; flex-grow: 1; justify-content: center; height: 100%; }
         .editable-input { background: transparent; border: none; font-family: inherit; width: 100%; outline: none; padding: 0; margin: 0; }
         .editable-input[readonly] { cursor: default; pointer-events: none; }
         
         .name-input { font-size: 2.4vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.3vh; text-transform: uppercase; letter-spacing: 0.01em; white-space: normal; overflow: hidden; }
-        .style-input { font-size: 1.3vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.5vh; white-space: normal; line-height: 1.2; overflow: hidden; }
+        .style-input { font-size: 1.3vh; color: #a0a0a0; font-weight: 500; margin-bottom: 0.5vh; white-space: normal; line-height: 1.2; word-break: break-word; overflow: hidden; }
+        .style-input:empty:before { content: attr(placeholder); color: #777; pointer-events: none; }
         .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #666; gap: 0.7vh; font-weight: 500; }
         .brewery-input { font-size: 1.5vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 20vh; overflow: hidden; text-overflow: ellipsis; }
         .val-highlight { font-size: 1.6vh; color: #fff; font-weight: 700; text-shadow: 0 0 5px rgba(255, 183, 3, 0.3); }
@@ -251,7 +253,7 @@
             .brewery-logo-wrapper { width: 55px; height: 55px; margin-right: 15px; }
             
             .name-input { font-size: 18px; margin-bottom: 4px; white-space: normal; line-height: 1.2; }
-            .style-input { font-size: 13px; margin-bottom: 6px; white-space: normal; line-height: 1.2; }
+            .style-input { font-size: 13px; margin-bottom: 6px; white-space: normal; line-height: 1.2; word-break: break-word; }
             .beer-details-row { font-size: 12px; gap: 6px; flex-wrap: wrap; }
             .brewery-input { font-size: 13px; max-width: 140px; }
             .val-highlight { font-size: 14px; }
@@ -611,7 +613,7 @@
                             </div>
                             <div class="text-col">
                                 <div class="editable-input name-input" data-i="${i}" data-f="name" contenteditable="${isEditMode}">${t.name||''}</div>
-                                <input type="text" class="editable-input style-input" data-i="${i}" data-f="style" value="${t.style||''}" placeholder="Описание" ${!isEditMode?'readonly':''}>
+                                <div class="editable-input style-input" data-i="${i}" data-f="style" contenteditable="${isEditMode}" placeholder="Описание">${t.style||''}</div>
                                 <div class="beer-details-row">
                                     <input type="text" class="editable-input brewery-input" data-i="${i}" data-f="brewery" list="dl-breweries" value="${t.brewery||''}" placeholder="Пивоварня" ${!isEditMode?'readonly':''}>
                                     <span>|</span> <span class="lbl-bold">ABV</span> <span class="editable val-highlight" contenteditable="${isEditMode}" data-i="${i}" data-f="abv">${t.abv||'0'}</span>%
