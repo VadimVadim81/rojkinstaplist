@@ -555,10 +555,14 @@
             const val = snap.val();
             if (val) {
                 appData = { ...appData, ...val, taps: val.taps || [] };
-                if (appData.taps.length === 0) {
-                    for(let i=1; i<=13; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
-                    save();
+                
+                let needSave = false;
+                while (appData.taps.length < 13) {
+                    appData.taps.push({number: appData.taps.length + 1, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
+                    needSave = true;
                 }
+                if (needSave) save();
+                
                 render();
             } else {
                 for(let i=1; i<=13; i++) appData.taps.push({number:i, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
