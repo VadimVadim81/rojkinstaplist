@@ -309,18 +309,18 @@
         #halloween-vignette {
             position: fixed; inset: 0; pointer-events: none; z-index: 800; display: none;
             box-shadow: 
-                inset 0 0 14vh 4vh rgba(0, 0, 0, 0.92),
-                inset 0 0 5vh 1vh rgba(60, 5, 0, 0.55);
-            background: radial-gradient(circle at 50% 50%, transparent 62%, rgba(15, 0, 0, 0.45) 88%, rgba(0, 0, 0, 0.9) 100%);
+                inset 0 0 8vh 1.5vh rgba(0, 0, 0, 0.52),
+                inset 0 0 3vh 0.5vh rgba(60, 5, 0, 0.25);
+            background: radial-gradient(circle at 50% 50%, transparent 78%, rgba(15, 0, 0, 0.16) 92%, rgba(0, 0, 0, 0.48) 100%);
         }
         body.theme-halloween #halloween-vignette { display: block; }
 
-        /* Паутина: под слоем "Руна недели" (z-index: 5 < z-index: 10 у .rune-container), правый край доходит до "СЕГОДНЯ НА КРАНАХ" */
+        /* Паутина и паучок: под слоем "Руна недели" (z-index: 8 < z-index: 10 у .rune-container) и НАД плашками кранов (z-index: 8 > z-index: 6 у #columns-container) */
         #halloween-cobweb-layer {
             position: fixed; top: 0; left: 0;
             width: calc(50vw - 17vh);
             height: 36vh;
-            z-index: 5;
+            z-index: 8;
             pointer-events: none;
             display: none;
         }
@@ -344,6 +344,7 @@
             position: absolute;
             top: 4.2vh;
             left: 64%;
+            z-index: 9;
             transform-origin: top center;
             animation: spider-pendulum 5.8s ease-in-out infinite;
             pointer-events: none;
@@ -581,12 +582,7 @@
                     <stop offset="55%" stop-color="rgba(220,220,225,0.45)" />
                     <stop offset="100%" stop-color="rgba(180,180,190,0.12)" />
                 </linearGradient>
-                <radialGradient id="cornerShadow" cx="0%" cy="0%" r="75%">
-                    <stop offset="0%" stop-color="rgba(0,0,0,0.65)" />
-                    <stop offset="100%" stop-color="rgba(0,0,0,0)" />
-                </radialGradient>
             </defs>
-            <rect x="0" y="0" width="600" height="340" fill="url(#cornerShadow)" />
             <!-- Радиальные нити от левого верхнего угла до надписи "Сегодня на кранах" -->
             <g stroke="url(#webSilk)" stroke-linecap="round" fill="none">
                 <path d="M0,0 L600,12" stroke-width="1.6"/>
@@ -771,6 +767,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const dbRef = ref(db, 'valhallaMenu');
+        const themeRef = ref(db, 'valhallaMenu/theme');
 
         const mainAdminBtn = document.getElementById('main-admin-btn');
         const adminActionsList = document.getElementById('admin-actions-list');
@@ -973,21 +970,23 @@
         }
 
         function applyThemeState() {
-            const isHalloween = appData.theme === 'halloween';
+            const currentTheme = appData.theme || 'standard';
+            const isHalloween = currentTheme === 'halloween';
             document.body.classList.toggle('theme-halloween', isHalloween);
 
             document.querySelectorAll('.btn-theme-option').forEach(btn => {
-                const active = btn.dataset.theme === (appData.theme || 'standard');
+                const active = btn.dataset.theme === currentTheme;
                 btn.classList.toggle('active-theme', active);
                 btn.querySelector('.theme-check').innerText = active ? '✓' : '';
             });
 
-            if (isHalloween && !sparksActive) {
-                sparksActive = true;
-                resizeSparksCanvas();
-                sparksList = Array.from({ length: 75 }, () => spawnSpark(true));
-                requestAnimationFrame(animateSparks);
-
+            if (isHalloween) {
+                if (!sparksActive) {
+                    sparksActive = true;
+                    resizeSparksCanvas();
+                    sparksList = Array.from({ length: 75 }, () => spawnSpark(true));
+                    requestAnimationFrame(animateSparks);
+                }
                 if (!spiderTimer) {
                     setTimeout(runSpiderLife, 600);
                     spiderTimer = setInterval(runSpiderLife, 4200);
@@ -995,7 +994,7 @@
                 if (!skullTimer) {
                     skullTimer = setInterval(spawnRandomTapSkull, 7000);
                 }
-            } else if (!isHalloween && sparksActive) {
+            } else {
                 sparksActive = false;
                 ctx.clearRect(0, 0, sparksCanvas.width, sparksCanvas.height);
                 if (spiderTimer) { clearInterval(spiderTimer); spiderTimer = null; }
@@ -1014,8 +1013,18 @@
                 e.stopPropagation();
                 appData.theme = btn.dataset.theme;
                 applyThemeState();
+                set(themeRef, appData.theme);
                 save();
             };
+        });
+
+        /* Прямая подписка на тему в Firebase для мгновенного обновления на всех экранах */
+        onValue(themeRef, snap => {
+            const remoteTheme = snap.val();
+            if (remoteTheme && appData.theme !== remoteTheme) {
+                appData.theme = remoteTheme;
+                applyThemeState();
+            }
         });
         /* ==================================================================================== */
 
@@ -1099,7 +1108,7 @@
             reader.onload = ev => {
                 try {
                     const parsed = JSON.parse(ev.target.result);
-                    appData = { ...appData, ...parsed };
+                    appData = { ...appData, ...parsed, theme: parsed.theme || appData.theme || "standard" };
                     save(); render();
                 } catch (err) { alert("Ошибка формата файла бэкапа!"); }
             };
@@ -1165,9 +1174,10 @@
         onValue(dbRef, snap => {
             const val = snap.val();
             if (val) {
-                appData = { ...appData, ...val, taps: val.taps || [] };
+                appData = { ...appData, ...val, theme: val.theme || "standard", taps: val.taps || [] };
                 
                 let needSave = false;
+                if (!val.theme) needSave = true;
                 while (appData.taps.length < 13) {
                     appData.taps.push({number: appData.taps.length + 1, name:"", brewery:"", style:"", abv:"", ibu:"", glassPrice:"", glassLabel:"Бокал 0,5", litrePrice:"", isStopped: true, breweryLogoName:""});
                     needSave = true;
@@ -1183,6 +1193,7 @@
 
         function save() {
             appData.lastEditorId = deviceId;
+            if (!appData.theme) appData.theme = "standard";
             saveStatus.innerText = "Сохранено";
             saveStatus.style.opacity = 1;
             set(dbRef, appData).then(() => setTimeout(() => saveStatus.style.opacity = 0, 1000));
