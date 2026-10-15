@@ -301,19 +301,24 @@
         .logo-grid-item:hover .btn-trash { display: flex; }
         .logo-grid-item .btn-trash:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); filter: grayscale(0); }
 
-        /* ================= ТЕМА ХЭЛЛОУИН ================= */
+        /* ================= ТЕМА ХЭЛЛОУИН (ОПТИМИЗИРОВАНО ДЛЯ TV STICK) ================= */
+        /* Отключаем тяжелый пересчет размытия под плашками при летящих сзади искрах */
+        body.theme-halloween .tap-content {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(18, 18, 18, 0.93);
+        }
+
         #sparks-canvas {
             position: fixed; inset: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 2; display: none;
         }
         body.theme-halloween #sparks-canvas { display: block; }
 
+        /* Легкая виньетка одним градиентом без тяжелого inset box-shadow */
         #halloween-vignette {
             position: fixed; inset: 0; pointer-events: none; z-index: 800; display: none;
-            box-shadow: 
-                inset 0 0 8vh 1.5vh rgba(0, 0, 0, 0.52),
-                inset 0 0 3vh 0.5vh rgba(60, 5, 0, 0.25);
-            background: radial-gradient(circle at 50% 50%, transparent 78%, rgba(15, 0, 0, 0.16) 92%, rgba(0, 0, 0, 0.48) 100%);
+            background: radial-gradient(circle at 50% 50%, transparent 74%, rgba(50, 4, 0, 0.22) 89%, rgba(0, 0, 0, 0.62) 100%);
         }
         body.theme-halloween #halloween-vignette { display: block; }
 
@@ -331,68 +336,65 @@
         #cobweb-svg {
             width: 100%; height: 100%;
             overflow: visible;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 8px rgba(255, 220, 180, 0.12));
-            transform-origin: 0 0;
-            animation: cobweb-breeze 9s ease-in-out infinite alternate;
-        }
-        @keyframes cobweb-breeze {
-            0% { transform: scale(1) skewX(0deg); }
-            50% { transform: scale(1.01, 0.995) skewX(0.6deg); }
-            100% { transform: scale(0.995, 1.008) skewX(-0.4deg); }
         }
 
-        /* Паучок на паутинке */
+        /* Паучок на паутинке (движение только через GPU transform без пересчета разметки) */
         #spider-rig {
             position: absolute;
             top: 4.2vh;
             left: 64%;
+            width: 0;
+            height: 0;
             z-index: 9;
             transform-origin: top center;
-            animation: spider-pendulum 5.8s ease-in-out infinite;
+            will-change: transform;
+            animation: spider-pendulum 6s ease-in-out infinite;
             pointer-events: none;
         }
         @keyframes spider-pendulum {
-            0%   { transform: rotate(-6deg); }
-            30%  { transform: rotate(5deg); }
-            65%  { transform: rotate(-3.5deg); }
-            100% { transform: rotate(-6deg); }
+            0%, 100% { transform: rotate(-5deg); }
+            50%      { transform: rotate(5deg); }
         }
         #spider-thread {
             width: 1.5px;
-            height: 9vh;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.65), rgba(235,235,235,0.9));
-            box-shadow: 0 0 4px rgba(255,255,255,0.35);
-            margin: 0 auto;
-            transition: height 1.8s cubic-bezier(0.34, 1.25, 0.64, 1);
+            height: 20vh;
+            background: rgba(235, 235, 235, 0.8);
+            margin-left: -0.75px;
+            transform-origin: top center;
+            transform: scaleY(0.45);
+            will-change: transform;
+            transition: transform 1.8s ease-in-out;
         }
         #spider-actor {
+            position: absolute;
+            top: 0;
+            left: -1.7vh;
             width: 3.4vh;
             height: 3.4vh;
-            margin-left: -1.7vh;
-            margin-top: -0.4vh;
             transform-origin: center 20%;
-            transition: transform 0.6s ease;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.9));
+            transform: translate3d(0, 8.6vh, 0);
+            will-change: transform;
+            transition: transform 1.8s ease-in-out;
         }
         #spider-actor.scurry .leg-group-a {
-            animation: spider-legs-a 0.18s infinite alternate ease-in-out;
+            animation: spider-legs-a 0.22s infinite alternate ease-in-out;
         }
         #spider-actor.scurry .leg-group-b {
-            animation: spider-legs-b 0.18s infinite alternate ease-in-out;
+            animation: spider-legs-b 0.22s infinite alternate ease-in-out;
         }
         .leg-group-a, .leg-group-b {
             transform-origin: 50px 52px;
         }
         @keyframes spider-legs-a {
-            0% { transform: rotate(-6deg); }
-            100% { transform: rotate(7deg); }
+            0% { transform: rotate(-5deg); }
+            100% { transform: rotate(6deg); }
         }
         @keyframes spider-legs-b {
-            0% { transform: rotate(7deg); }
-            100% { transform: rotate(-6deg); }
+            0% { transform: rotate(6deg); }
+            100% { transform: rotate(-5deg); }
         }
 
-        /* Тыква в правом нижнем углу с красной подложкой */
+        /* Тыква в правом нижнем углу с красной подложкой (без blur и drop-shadow фильтров) */
         #halloween-pumpkin {
             position: fixed;
             bottom: 1.2vh;
@@ -409,46 +411,47 @@
 
         #halloween-pumpkin .pumpkin-red-glow {
             position: absolute;
-            inset: -25%;
+            inset: -32%;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 15, 0, 0.78) 0%, rgba(190, 0, 20, 0.45) 42%, rgba(120, 0, 0, 0) 72%);
-            filter: blur(8px);
-            animation: pumpkin-aura-pulse 2.6s infinite ease-in-out;
+            background: radial-gradient(circle, rgba(255, 25, 0, 0.72) 0%, rgba(190, 0, 20, 0.35) 42%, rgba(120, 0, 0, 0) 70%);
+            will-change: transform, opacity;
+            animation: pumpkin-aura-pulse 2.8s infinite ease-in-out;
             z-index: -1;
         }
         #halloween-pumpkin svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 12px rgba(255, 30, 0, 0.85)) drop-shadow(0 6px 14px rgba(0,0,0,0.95));
+            will-change: transform;
             animation: pumpkin-float 4s ease-in-out infinite alternate;
         }
         #halloween-pumpkin .pumpkin-inner-fire {
-            animation: pumpkin-candle-flicker 0.22s infinite alternate;
+            will-change: opacity;
+            animation: pumpkin-candle-flicker 0.35s infinite alternate;
         }
         @keyframes pumpkin-aura-pulse {
             0%, 100% { transform: scale(0.92); opacity: 0.75; }
-            50% { transform: scale(1.18); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 1; }
         }
         @keyframes pumpkin-float {
-            0% { transform: translateY(0) rotate(-1.5deg); }
-            100% { transform: translateY(-0.4vh) rotate(1.5deg); }
+            0% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+            100% { transform: translate3d(0, -0.4vh, 0) rotate(1.5deg); }
         }
         @keyframes pumpkin-candle-flicker {
-            0% { opacity: 0.88; filter: brightness(0.95); }
-            100% { opacity: 1; filter: brightness(1.18); }
+            0% { opacity: 0.82; }
+            100% { opacity: 1; }
         }
 
-        /* Череп из номеров кранов */
+        /* Череп из номеров кранов (без CSS filter) */
         .tap-skull-popup {
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 4.8vh;
-            height: 4.8vh;
+            width: 5.2vh;
+            height: 5.2vh;
             pointer-events: none;
             z-index: 60;
-            transform: translate(-50%, -50%) scale(0);
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.95)) drop-shadow(0 0 8px rgba(255, 80, 0, 0.6));
+            will-change: transform, opacity;
+            transform: translate3d(-50%, -50%, 0) scale(0);
             animation: skull-peek-out 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .tap-skull-popup .skull-jaw {
@@ -457,37 +460,33 @@
         }
         @keyframes skull-peek-out {
             0% {
-                transform: translate(-50%, -50%) scale(0) rotate(-30deg);
+                transform: translate3d(-50%, -50%, 0) scale(0) rotate(-30deg);
                 opacity: 0;
             }
             18% {
-                transform: translate(-50%, -92%) scale(1.22) rotate(10deg);
+                transform: translate3d(-50%, -92%, 0) scale(1.2) rotate(10deg);
                 opacity: 1;
             }
-            30% {
-                transform: translate(-50%, -82%) scale(1.1) rotate(-7deg);
+            35% {
+                transform: translate3d(-50%, -82%, 0) scale(1.1) rotate(-7deg);
                 opacity: 1;
             }
-            50% {
-                transform: translate(-50%, -86%) scale(1.16) rotate(6deg);
+            58% {
+                transform: translate3d(-50%, -86%, 0) scale(1.15) rotate(6deg);
                 opacity: 1;
             }
-            72% {
-                transform: translate(-50%, -82%) scale(1.12) rotate(-4deg);
-                opacity: 1;
-            }
-            84% {
-                transform: translate(-50%, -90%) scale(1.18) rotate(0deg);
+            82% {
+                transform: translate3d(-50%, -88%, 0) scale(1.15) rotate(0deg);
                 opacity: 1;
             }
             100% {
-                transform: translate(-50%, -50%) scale(0) rotate(25deg);
+                transform: translate3d(-50%, -50%, 0) scale(0) rotate(25deg);
                 opacity: 0;
             }
         }
         @keyframes skull-jaw-laugh {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(7px) rotate(4deg); }
+            0% { transform: translateY(0); }
+            100% { transform: translateY(6px); }
         }
 
         @media screen and (max-width: 1024px) and (orientation: portrait), screen and (max-width: 650px) {
@@ -826,10 +825,14 @@
 
         updateRune();
 
-        /* ================= ЛОГИКА ТЕМЫ ХЭЛЛОУИН (60FPS ИСКРЫ, ПАУЧОК, ЧЕРЕП) ================= */
+        /* ================= ЛОГИКА ТЕМЫ ХЭЛЛОУИН (ОПТИМИЗАЦИЯ ДЛЯ TV STICK) ================= */
         const sparksCanvas = document.getElementById('sparks-canvas');
-        const ctx = sparksCanvas.getContext('2d');
+        const ctx = sparksCanvas.getContext('2d', { alpha: true });
+        const CANVAS_SCALE = 0.5; // Половинное разрешение буфера (дает 4x прирост скорости без потери вида)
         let sparksActive = false;
+        let sparksRafId = null;
+        let lastSparkTime = 0;
+        let canvasW = 0, canvasH = 0;
         let sparksList = [];
         let sparkSprites = [];
         let spiderTimer = null;
@@ -843,16 +846,16 @@
             ];
             sparkSprites = palettes.map(cols => {
                 const off = document.createElement('canvas');
-                off.width = 64; off.height = 64;
+                off.width = 32; off.height = 32;
                 const octx = off.getContext('2d');
-                const grad = octx.createRadialGradient(32, 32, 1, 32, 32, 30);
+                const grad = octx.createRadialGradient(16, 16, 1, 16, 16, 15);
                 grad.addColorStop(0, cols[0]);
-                grad.addColorStop(0.22, cols[1]);
-                grad.addColorStop(0.55, cols[2]);
+                grad.addColorStop(0.25, cols[1]);
+                grad.addColorStop(0.6, cols[2]);
                 grad.addColorStop(1, cols[3]);
                 octx.fillStyle = grad;
                 octx.beginPath();
-                octx.arc(32, 32, 30, 0, Math.PI * 2);
+                octx.arc(16, 16, 15, 0, Math.PI * 2);
                 octx.fill();
                 return off;
             });
@@ -860,36 +863,38 @@
         createSparkSprites();
 
         function resizeSparksCanvas() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            sparksCanvas.width = window.innerWidth * dpr;
-            sparksCanvas.height = window.innerHeight * dpr;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            canvasW = Math.floor(window.innerWidth * CANVAS_SCALE);
+            canvasH = Math.floor(window.innerHeight * CANVAS_SCALE);
+            sparksCanvas.width = canvasW;
+            sparksCanvas.height = canvasH;
         }
         window.addEventListener('resize', resizeSparksCanvas);
         resizeSparksCanvas();
 
         function spawnSpark(randomY = false) {
-            const w = window.innerWidth, h = window.innerHeight;
             return {
-                x: Math.random() * w,
-                y: randomY ? Math.random() * h : h + 10 + Math.random() * 40,
-                vx: (Math.random() - 0.35) * 0.9,
-                vy: -(0.7 + Math.random() * 1.8),
-                size: 5 + Math.random() * 14,
-                alpha: 0.35 + Math.random() * 0.65,
+                x: Math.random() * canvasW,
+                y: randomY ? Math.random() * canvasH : canvasH + 10 + Math.random() * 20,
+                vx: (Math.random() - 0.35) * 0.7,
+                vy: -(0.6 + Math.random() * 1.4),
+                size: Math.round(4 + Math.random() * 8),
+                alpha: 0.45 + Math.random() * 0.55,
                 phase: Math.random() * Math.PI * 2,
-                freq: 0.015 + Math.random() * 0.03,
-                sway: 0.3 + Math.random() * 0.8,
-                sprite: sparkSprites[Math.floor(Math.random() * sparkSprites.length)],
-                twinkleSpeed: 0.03 + Math.random() * 0.06
+                freq: 0.03 + Math.random() * 0.04,
+                sway: 0.25 + Math.random() * 0.5,
+                sprite: sparkSprites[Math.floor(Math.random() * sparkSprites.length)]
             };
         }
 
-        function animateSparks() {
+        function animateSparks(now) {
             if (!sparksActive) return;
-            const w = window.innerWidth, h = window.innerHeight;
-            ctx.clearRect(0, 0, w, h);
-            ctx.globalCompositeOperation = 'lighter';
+            sparksRafId = requestAnimationFrame(animateSparks);
+
+            // Ограничение до ~30 FPS для разгрузки слабой графики приставки
+            if (now - lastSparkTime < 33) return;
+            lastSparkTime = now;
+
+            ctx.clearRect(0, 0, canvasW, canvasH);
 
             for (let i = 0; i < sparksList.length; i++) {
                 const p = sparksList[i];
@@ -897,17 +902,13 @@
                 p.x += p.vx + Math.sin(p.phase) * p.sway;
                 p.y += p.vy;
 
-                const twinkle = 0.65 + 0.35 * Math.sin(p.phase * 2.5);
-                ctx.globalAlpha = p.alpha * twinkle;
+                ctx.globalAlpha = p.alpha * (0.7 + 0.3 * Math.sin(p.phase * 2));
+                ctx.drawImage(p.sprite, (p.x - p.size * 0.5) | 0, (p.y - p.size * 0.5) | 0, p.size, p.size);
 
-                const drawSize = p.size * (0.85 + 0.25 * Math.cos(p.phase));
-                ctx.drawImage(p.sprite, p.x - drawSize / 2, p.y - drawSize / 2, drawSize, drawSize);
-
-                if (p.y < -30 || p.x < -40 || p.x > w + 40) {
+                if (p.y < -15 || p.x < -20 || p.x > canvasW + 20) {
                     sparksList[i] = spawnSpark(false);
                 }
             }
-            requestAnimationFrame(animateSparks);
         }
 
         function runSpiderLife() {
@@ -916,12 +917,13 @@
             if (!thread || !actor) return;
 
             const minH = 4.5, maxH = 19;
-            const nextH = (minH + Math.random() * (maxH - minH)).toFixed(1);
-            const tilt = ((Math.random() - 0.5) * 26).toFixed(1);
+            const nextH = +(minH + Math.random() * (maxH - minH)).toFixed(1);
+            const tilt = +((Math.random() - 0.5) * 24).toFixed(1);
+            const scaleY = (nextH / 20).toFixed(3);
 
             actor.classList.add('scurry');
-            thread.style.height = nextH + 'vh';
-            actor.style.transform = `rotate(${tilt}deg)`;
+            thread.style.transform = `scaleY(${scaleY})`;
+            actor.style.transform = `translate3d(0, ${(nextH - 0.4).toFixed(1)}vh, 0) rotate(${tilt}deg)`;
 
             setTimeout(() => actor.classList.remove('scurry'), 1600);
         }
@@ -942,7 +944,13 @@
                             <stop offset="65%" stop-color="#ded6c1"/>
                             <stop offset="100%" stop-color="#8c826b"/>
                         </radialGradient>
+                        <radialGradient id="skullAura" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="rgba(255, 80, 0, 0.55)"/>
+                            <stop offset="100%" stop-color="rgba(0, 0, 0, 0)"/>
+                        </radialGradient>
                     </defs>
+                    <!-- Встроенное легкое свечение вместо тяжелого CSS drop-shadow -->
+                    <circle cx="50" cy="50" r="48" fill="url(#skullAura)"/>
                     <!-- Нижняя челюсть -->
                     <g class="skull-jaw">
                         <path d="M33,66 L67,66 L63,83 C55,88 45,88 37,83 Z" fill="url(#skullBone)" stroke="#2b261f" stroke-width="3"/>
@@ -986,19 +994,20 @@
                 if (!sparksActive) {
                     sparksActive = true;
                     resizeSparksCanvas();
-                    sparksList = Array.from({ length: 75 }, () => spawnSpark(true));
-                    requestAnimationFrame(animateSparks);
+                    sparksList = Array.from({ length: 28 }, () => spawnSpark(true));
+                    sparksRafId = requestAnimationFrame(animateSparks);
                 }
                 if (!spiderTimer) {
                     setTimeout(runSpiderLife, 600);
-                    spiderTimer = setInterval(runSpiderLife, 4200);
+                    spiderTimer = setInterval(runSpiderLife, 4500);
                 }
                 if (!skullTimer) {
-                    skullTimer = setInterval(spawnRandomTapSkull, 7000);
+                    skullTimer = setInterval(spawnRandomTapSkull, 7500);
                 }
             } else {
                 sparksActive = false;
-                ctx.clearRect(0, 0, sparksCanvas.width, sparksCanvas.height);
+                if (sparksRafId) { cancelAnimationFrame(sparksRafId); sparksRafId = null; }
+                ctx.clearRect(0, 0, canvasW, canvasH);
                 if (spiderTimer) { clearInterval(spiderTimer); spiderTimer = null; }
                 if (skullTimer) { clearInterval(skullTimer); skullTimer = null; }
                 document.querySelectorAll('.tap-skull-popup').forEach(el => el.remove());
