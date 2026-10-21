@@ -83,6 +83,26 @@
             animation: neon-letter-blink 11s infinite 1.7s;
         }
 
+        /* Буквы вывески и эффект повисшей на гвоздике буквы */
+        .title-letter {
+            display: inline-block;
+            transform-origin: 22% 18%;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s, text-shadow 0.25s;
+        }
+        .title-letter.hanging-letter {
+            color: #5c4028 !important;
+            text-shadow: 0 0 4px rgba(255, 120, 0, 0.25), 0 2px 4px rgba(0,0,0,0.9) !important;
+            animation: letter-dangling 1.5s ease-in-out infinite alternate !important;
+        }
+        .title-letter.just-fixed {
+            color: #ffffff !important;
+            text-shadow: 0 0 6px #fff, 0 0 16px #ffb703, 0 0 35px #ff5500 !important;
+        }
+        @keyframes letter-dangling {
+            0%   { transform: rotate(33deg) translate3d(0, 0.4vh, 0); }
+            100% { transform: rotate(43deg) translate3d(0, 0.4vh, 0); }
+        }
+
         @keyframes neon-sign-hum {
             0%, 100% {
                 filter: brightness(1) drop-shadow(0 0 6px rgba(255, 183, 3, 0.4));
@@ -211,7 +231,7 @@
         .editable-input[readonly] { cursor: default; pointer-events: none; }
         
         .name-input { font-size: 2.4vh; color: #fff; line-height: 1.1; font-weight: 700; margin-bottom: 0.3vh; text-transform: uppercase; letter-spacing: 0.01em; white-space: normal; overflow: hidden; }
-        .style-input { font-size: 1.3vh; color: #a0a0a0; font-weight: 600; margin-bottom: 0.5vh; white-space: normal; line-height: 1.2; word-break: break-word; overflow: hidden; }
+        .style-input { font-size: 1.55vh; color: #a0a0a0; font-weight: 600; margin-bottom: 0.5vh; white-space: normal; line-height: 1.2; word-break: break-word; overflow: hidden; }
         .style-input:empty:before { content: attr(placeholder); color: #777; pointer-events: none; }
         .beer-details-row { display: flex; align-items: center; font-size: 1.4vh; color: #666; gap: 0.7vh; font-weight: 500; }
         .brewery-input { font-size: 1.5vh; color: #ccc; font-weight: 600; min-width: 10vh; max-width: 20vh; overflow: hidden; text-overflow: ellipsis; }
@@ -302,27 +322,95 @@
         .logo-grid-item .btn-trash:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); filter: grayscale(0); }
 
         /* ================= ТЕМА ХЭЛЛОУИН (ОПТИМИЗИРОВАНО ДЛЯ TV STICK) ================= */
-        /* Отключаем тяжелый пересчет размытия под плашками при летящих сзади искрах */
+        /* Замок вдали со зловещим янтарным свечением */
+        #halloween-castle-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+            background: 
+                radial-gradient(ellipse 58% 46% at 50% 62%, rgba(255, 145, 0, 0.28) 0%, rgba(190, 65, 0, 0.14) 48%, rgba(0, 0, 0, 0) 100%),
+                radial-gradient(ellipse at 50% 0%, #1c120c 0%, #090605 55%, #000000 100%);
+        }
+        body.theme-halloween #halloween-castle-bg { display: block; }
+
+        #halloween-castle-bg svg {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 88vh;
+        }
+
+        /* Плашки кранов: тусклый неон + редкое помаргивание газоразрядной лампы */
         body.theme-halloween .tap-content {
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
-            background: rgba(18, 18, 18, 0.93);
+            background: rgba(14, 11, 10, 0.80);
+            border: 1px solid rgba(255, 140, 20, 0.36);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.85),
+                0 0 8px rgba(255, 115, 0, 0.18),
+                inset 0 0 6px rgba(255, 115, 0, 0.07);
+        }
+        body.theme-halloween .tap-content.gas-lamp-flicker {
+            animation: broken-gas-lamp 0.65s linear forwards;
+        }
+        @keyframes broken-gas-lamp {
+            0%, 100% {
+                border-color: rgba(255, 140, 20, 0.36);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 8px rgba(255, 115, 0, 0.18), inset 0 0 6px rgba(255, 115, 0, 0.07);
+            }
+            12%, 42% {
+                border-color: rgba(80, 40, 10, 0.15);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+            }
+            24% {
+                border-color: rgba(255, 190, 70, 0.78);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 15px rgba(255, 145, 0, 0.45), inset 0 0 10px rgba(255, 145, 0, 0.18);
+            }
+            65% {
+                border-color: rgba(90, 45, 10, 0.18);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+            }
+            82% {
+                border-color: rgba(255, 165, 40, 0.6);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 12px rgba(255, 130, 0, 0.32), inset 0 0 8px rgba(255, 130, 0, 0.12);
+            }
         }
 
-        #sparks-canvas {
-            position: fixed; inset: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 2; display: none;
+        /* Номера кранов в неоновых тыквах с высокой читаемостью */
+        body.theme-halloween .circled-number {
+            width: 5.6vh;
+            height: 5.6vh;
+            margin-right: 1.2vh;
+            border: none;
+            border-radius: 0;
+            background-color: transparent;
+            box-shadow: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='54%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ff7b00' stop-opacity='0.38'/%3E%3Cstop offset='100%25' stop-color='%23ff5500' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' cx='50%25' cy='55%25' r='48%25'%3E%3Cstop offset='0%25' stop-color='%23290d02'/%3E%3Cstop offset='78%25' stop-color='%23471703'/%3E%3Cstop offset='100%25' stop-color='%23782904'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='54' r='49' fill='url(%23g)'/%3E%3Cpath d='M46,21 C44,11 53,6 60,9 C55,13 53,16 54,21 Z' fill='%232e4a14' stroke='%23ffb703' stroke-width='2' stroke-linejoin='round'/%3E%3Cellipse cx='27' cy='56' rx='18' ry='30' fill='url(%23b)' stroke='%23ff7b00' stroke-width='2.4'/%3E%3Cellipse cx='73' cy='56' rx='18' ry='30' fill='url(%23b)' stroke='%23ff7b00' stroke-width='2.4'/%3E%3Cellipse cx='38' cy='57' rx='18' ry='33' fill='url(%23b)' stroke='%23ff9500' stroke-width='2.2'/%3E%3Cellipse cx='62' cy='57' rx='18' ry='33' fill='url(%23b)' stroke='%23ff9500' stroke-width='2.2'/%3E%3Cellipse cx='50' cy='58' rx='19' ry='34' fill='url(%23b)' stroke='%23ffb703' stroke-width='2.4'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #fffdf5;
+            padding-top: 0.5vh;
+            box-sizing: border-box;
+            text-shadow: 
+                0 1px 3px #000,
+                0 0 4px #000,
+                0 0 8px rgba(255, 165, 0, 0.85);
         }
-        body.theme-halloween #sparks-canvas { display: block; }
 
-        /* Легкая виньетка одним градиентом без тяжелого inset box-shadow */
+        /* Легкая виньетка одним градиентом */
         #halloween-vignette {
             position: fixed; inset: 0; pointer-events: none; z-index: 800; display: none;
             background: radial-gradient(circle at 50% 50%, transparent 74%, rgba(50, 4, 0, 0.22) 89%, rgba(0, 0, 0, 0.62) 100%);
         }
         body.theme-halloween #halloween-vignette { display: block; }
 
-        /* Паутина и паучок: под слоем "Руна недели" (z-index: 8 < z-index: 10 у .rune-container) и НАД плашками кранов (z-index: 8 > z-index: 6 у #columns-container) */
+        /* Паутина: под слоем "Руна недели" (z-index: 8 < z-index: 10) и НАД плашками кранов (z-index: 8 > z-index: 6) */
         #halloween-cobweb-layer {
             position: fixed; top: 0; left: 0;
             width: calc(50vw - 17vh);
@@ -338,32 +426,39 @@
             overflow: visible;
         }
 
-        /* Паучок на паутинке (движение только через GPU transform без пересчета разметки) */
+        /* Паучок на паутинке (может бегать к буквам заголовка) */
         #spider-rig {
-            position: absolute;
-            top: 4.2vh;
-            left: 64%;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 0;
             height: 0;
-            z-index: 9;
-            transform-origin: top center;
-            will-change: transform;
-            animation: spider-pendulum 6s ease-in-out infinite;
+            z-index: 25;
             pointer-events: none;
+            display: none;
+            will-change: transform;
+            transform: translate3d(24vw, 0, 0);
+            transition: transform 1.15s cubic-bezier(0.42, 0, 0.2, 1);
+        }
+        body.theme-halloween #spider-rig { display: block; }
+
+        #spider-pendulum-wrap {
+            transform-origin: top center;
+            animation: spider-pendulum 6s ease-in-out infinite;
         }
         @keyframes spider-pendulum {
-            0%, 100% { transform: rotate(-5deg); }
-            50%      { transform: rotate(5deg); }
+            0%, 100% { transform: rotate(-4deg); }
+            50%      { transform: rotate(4deg); }
         }
         #spider-thread {
             width: 1.5px;
-            height: 20vh;
-            background: rgba(235, 235, 235, 0.8);
+            height: 22vh;
+            background: rgba(235, 235, 235, 0.82);
             margin-left: -0.75px;
             transform-origin: top center;
-            transform: scaleY(0.45);
+            transform: scaleY(0.5);
             will-change: transform;
-            transition: transform 1.8s ease-in-out;
+            transition: transform 0.85s ease-in-out;
         }
         #spider-actor {
             position: absolute;
@@ -372,121 +467,26 @@
             width: 3.4vh;
             height: 3.4vh;
             transform-origin: center 20%;
-            transform: translate3d(0, 8.6vh, 0);
+            transform: translate3d(0, 10.6vh, 0);
             will-change: transform;
-            transition: transform 1.8s ease-in-out;
+            transition: transform 0.85s ease-in-out;
         }
         #spider-actor.scurry .leg-group-a {
-            animation: spider-legs-a 0.22s infinite alternate ease-in-out;
+            animation: spider-legs-a 0.16s infinite alternate ease-in-out;
         }
         #spider-actor.scurry .leg-group-b {
-            animation: spider-legs-b 0.22s infinite alternate ease-in-out;
+            animation: spider-legs-b 0.16s infinite alternate ease-in-out;
         }
         .leg-group-a, .leg-group-b {
             transform-origin: 50px 52px;
         }
         @keyframes spider-legs-a {
-            0% { transform: rotate(-5deg); }
-            100% { transform: rotate(6deg); }
+            0% { transform: rotate(-6deg); }
+            100% { transform: rotate(7deg); }
         }
         @keyframes spider-legs-b {
-            0% { transform: rotate(6deg); }
-            100% { transform: rotate(-5deg); }
-        }
-
-        /* Тыква в правом нижнем углу с красной подложкой (без blur и drop-shadow фильтров) */
-        #halloween-pumpkin {
-            position: fixed;
-            bottom: 1.2vh;
-            right: 1.6vw;
-            width: 11.5vh;
-            height: 11.5vh;
-            z-index: 850;
-            pointer-events: none;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        body.theme-halloween #halloween-pumpkin { display: flex; }
-
-        #halloween-pumpkin .pumpkin-red-glow {
-            position: absolute;
-            inset: -32%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 25, 0, 0.72) 0%, rgba(190, 0, 20, 0.35) 42%, rgba(120, 0, 0, 0) 70%);
-            will-change: transform, opacity;
-            animation: pumpkin-aura-pulse 2.8s infinite ease-in-out;
-            z-index: -1;
-        }
-        #halloween-pumpkin svg {
-            width: 100%;
-            height: 100%;
-            will-change: transform;
-            animation: pumpkin-float 4s ease-in-out infinite alternate;
-        }
-        #halloween-pumpkin .pumpkin-inner-fire {
-            will-change: opacity;
-            animation: pumpkin-candle-flicker 0.35s infinite alternate;
-        }
-        @keyframes pumpkin-aura-pulse {
-            0%, 100% { transform: scale(0.92); opacity: 0.75; }
-            50% { transform: scale(1.15); opacity: 1; }
-        }
-        @keyframes pumpkin-float {
-            0% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
-            100% { transform: translate3d(0, -0.4vh, 0) rotate(1.5deg); }
-        }
-        @keyframes pumpkin-candle-flicker {
-            0% { opacity: 0.82; }
-            100% { opacity: 1; }
-        }
-
-        /* Череп из номеров кранов (без CSS filter) */
-        .tap-skull-popup {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 5.2vh;
-            height: 5.2vh;
-            pointer-events: none;
-            z-index: 60;
-            will-change: transform, opacity;
-            transform: translate3d(-50%, -50%, 0) scale(0);
-            animation: skull-peek-out 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        .tap-skull-popup .skull-jaw {
-            transform-origin: 50px 68px;
-            animation: skull-jaw-laugh 0.28s ease-in-out 5 alternate 0.4s;
-        }
-        @keyframes skull-peek-out {
-            0% {
-                transform: translate3d(-50%, -50%, 0) scale(0) rotate(-30deg);
-                opacity: 0;
-            }
-            18% {
-                transform: translate3d(-50%, -92%, 0) scale(1.2) rotate(10deg);
-                opacity: 1;
-            }
-            35% {
-                transform: translate3d(-50%, -82%, 0) scale(1.1) rotate(-7deg);
-                opacity: 1;
-            }
-            58% {
-                transform: translate3d(-50%, -86%, 0) scale(1.15) rotate(6deg);
-                opacity: 1;
-            }
-            82% {
-                transform: translate3d(-50%, -88%, 0) scale(1.15) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translate3d(-50%, -50%, 0) scale(0) rotate(25deg);
-                opacity: 0;
-            }
-        }
-        @keyframes skull-jaw-laugh {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(6px); }
+            0% { transform: rotate(7deg); }
+            100% { transform: rotate(-6deg); }
         }
 
         @media screen and (max-width: 1024px) and (orientation: portrait), screen and (max-width: 650px) {
@@ -530,6 +530,9 @@
             .circled-number { 
                 width: 40px; height: 40px; font-size: 20px; margin-right: 12px; flex-shrink: 0; 
             }
+            body.theme-halloween .circled-number {
+                width: 44px; height: 44px; font-size: 20px; margin-right: 10px;
+            }
             
             .tap-content { 
                 flex-direction: column; align-items: stretch; height: auto; min-height: unset; 
@@ -540,7 +543,7 @@
             .brewery-logo-wrapper { width: 55px; height: 55px; margin-right: 15px; }
             
             .name-input { font-size: 18px; margin-bottom: 4px; white-space: normal; line-height: 1.2; }
-            .style-input { font-size: 13px; margin-bottom: 6px; white-space: normal; line-height: 1.2; word-break: break-word; }
+            .style-input { font-size: 15px; margin-bottom: 6px; white-space: normal; line-height: 1.2; word-break: break-word; }
             .beer-details-row { font-size: 12px; gap: 6px; flex-wrap: wrap; }
             .brewery-input { font-size: 13px; max-width: 140px; }
             .val-highlight { font-size: 14px; }
@@ -572,7 +575,75 @@
 </head>
 <body>
     <!-- Элементы темы Хэллоуин -->
-    <canvas id="sparks-canvas"></canvas>
+    <div id="halloween-castle-bg">
+        <svg viewBox="0 0 1920 960" preserveAspectRatio="xMidYMax slice">
+            <defs>
+                <!-- Зловещее янтарное свечение позади замка -->
+                <radialGradient id="castleAmberGlow" cx="50%" cy="62%" r="44%">
+                    <stop offset="0%" stop-color="#ffae00" stop-opacity="0.52"/>
+                    <stop offset="38%" stop-color="#ff6a00" stop-opacity="0.28"/>
+                    <stop offset="72%" stop-color="#8a2000" stop-opacity="0.08"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="amberMist" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ff8800" stop-opacity="0"/>
+                    <stop offset="50%" stop-color="#ff7300" stop-opacity="0.14"/>
+                    <stop offset="100%" stop-color="#050302" stop-opacity="0.95"/>
+                </linearGradient>
+                <linearGradient id="castleRock" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#170d08"/>
+                    <stop offset="100%" stop-color="#040201"/>
+                </linearGradient>
+            </defs>
+
+            <!-- Янтарный ореол в небе за шпилями -->
+            <ellipse cx="960" cy="580" rx="760" ry="430" fill="url(#castleAmberGlow)"/>
+            <circle cx="960" cy="450" r="195" fill="#ffb703" opacity="0.12"/>
+
+            <!-- Дальние зубчатые хребты -->
+            <path d="M0,960 L0,760 L190,690 L350,735 L540,640 L710,700 L960,560 L1210,705 L1390,635 L1580,725 L1740,680 L1920,750 L1920,960 Z" fill="#120904" opacity="0.85"/>
+
+            <!-- Силуэт готического замка на центральной скале -->
+            <path d="
+                M590,960 L640,730 L695,675 L730,680 L730,500 L715,500 L745,410 L775,500 L760,500 L760,610
+                L805,610 L805,440 L792,440 L825,330 L858,440 L845,440 L845,565
+                L885,565 L885,370 L870,370 L902,255 L934,370 L920,370 L920,490
+                L935,490 L935,280 L918,280 L960,135 L1002,280 L985,280 L985,490
+                L1000,490 L1000,370 L986,370 L1018,255 L1050,370 L1035,370 L1035,565
+                L1075,565 L1075,440 L1062,440 L1095,330 L1128,440 L1115,440 L1115,610
+                L1160,610 L1160,500 L1145,500 L1175,410 L1205,500 L1190,500 L1190,680
+                L1225,675 L1280,730 L1330,960 Z"
+                fill="url(#castleRock)" stroke="#ff9500" stroke-width="1.2" stroke-opacity="0.38"/>
+
+            <!-- Янтарный контровой свет по контуру скал -->
+            <path d="M220,960 L420,790 L580,825 L710,700 L960,645 L1210,700 L1340,825 L1500,790 L1700,960 Z" fill="#0b0503"/>
+
+            <!-- Светящиеся янтарным огнем стрельчатые окна замка -->
+            <g fill="#ffb703" opacity="0.88">
+                <!-- Главная башня -->
+                <path d="M952,320 C952,308 968,308 968,320 L968,352 L952,352 Z"/>
+                <path d="M944,385 C944,375 955,375 955,385 L955,412 L944,412 Z"/>
+                <path d="M965,385 C965,375 976,375 976,385 L976,412 L965,412 Z"/>
+                <circle cx="960" cy="260" r="5"/>
+                <!-- Боковые башни -->
+                <path d="M897,395 C897,386 907,386 907,395 L907,420 L897,420 Z"/>
+                <path d="M1013,395 C1013,386 1023,386 1023,395 L1023,420 L1013,420 Z"/>
+                <path d="M820,468 C820,460 830,460 830,468 L830,492 L820,492 Z"/>
+                <path d="M1090,468 C1090,460 1100,460 1100,468 L1100,492 L1090,492 Z"/>
+                <path d="M741,525 C741,518 749,518 749,525 L749,544 L741,544 Z"/>
+                <path d="M1171,525 C1171,518 1179,518 1179,525 L1179,544 L1171,544 Z"/>
+                <!-- Залы в основании -->
+                <path d="M936,535 C936,522 952,522 952,535 L952,575 L936,575 Z" fill="#ff8800"/>
+                <path d="M968,535 C968,522 984,522 984,535 L984,575 L968,575 Z" fill="#ff8800"/>
+                <path d="M870,595 C870,586 882,586 882,595 L882,622 L870,622 Z" fill="#ff7b00"/>
+                <path d="M1038,595 C1038,586 1050,586 1050,595 L1050,622 L1038,622 Z" fill="#ff7b00"/>
+            </g>
+
+            <!-- Янтарная дымка у подножия -->
+            <rect x="0" y="560" width="1920" height="400" fill="url(#amberMist)"/>
+        </svg>
+    </div>
+
     <div id="halloween-vignette"></div>
 
     <div id="halloween-cobweb-layer">
@@ -614,9 +685,11 @@
                 <circle cx="143" cy="110" r="1.3"/>
             </g>
         </svg>
+    </div>
 
-        <!-- Живой паучок на паутинке -->
-        <div id="spider-rig">
+    <!-- Живой паучок на паутинке (реагирует на падение букв) -->
+    <div id="spider-rig">
+        <div id="spider-pendulum-wrap">
             <div id="spider-thread"></div>
             <div id="spider-actor">
                 <svg viewBox="0 0 100 100" width="100%" height="100%">
@@ -649,46 +722,6 @@
         </div>
     </div>
 
-    <!-- Тыква в правом нижнем углу -->
-    <div id="halloween-pumpkin">
-        <div class="pumpkin-red-glow"></div>
-        <svg viewBox="0 0 200 190">
-            <defs>
-                <radialGradient id="pumpkinBody" cx="50%" cy="45%" r="55%">
-                    <stop offset="0%" stop-color="#ff7b00"/>
-                    <stop offset="65%" stop-color="#d94800"/>
-                    <stop offset="100%" stop-color="#6e1600"/>
-                </radialGradient>
-                <linearGradient id="pumpkinRib" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#ff9914"/>
-                    <stop offset="50%" stop-color="#e05300"/>
-                    <stop offset="100%" stop-color="#5c1100"/>
-                </linearGradient>
-                <radialGradient id="innerFire" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#fff7b0"/>
-                    <stop offset="45%" stop-color="#ffae00"/>
-                    <stop offset="85%" stop-color="#ff1e00"/>
-                    <stop offset="100%" stop-color="#7a0000"/>
-                </radialGradient>
-            </defs>
-            <!-- Хвостик тыквы -->
-            <path d="M92,42 C88,20 105,8 122,12 C114,22 108,30 110,43 Z" fill="#3d5218" stroke="#1e2b0a" stroke-width="3"/>
-            <!-- Дольки тыквы -->
-            <ellipse cx="52" cy="112" rx="38" ry="62" fill="url(#pumpkinBody)" stroke="#470c00" stroke-width="2.5"/>
-            <ellipse cx="148" cy="112" rx="38" ry="62" fill="url(#pumpkinBody)" stroke="#470c00" stroke-width="2.5"/>
-            <ellipse cx="74" cy="114" rx="36" ry="66" fill="url(#pumpkinRib)" stroke="#470c00" stroke-width="2.5"/>
-            <ellipse cx="126" cy="114" rx="36" ry="66" fill="url(#pumpkinRib)" stroke="#470c00" stroke-width="2.5"/>
-            <ellipse cx="100" cy="115" rx="38" ry="68" fill="url(#pumpkinRib)" stroke="#470c00" stroke-width="2.5"/>
-            <!-- Вырезанные глаза и ухмылка -->
-            <g class="pumpkin-inner-fire" fill="url(#innerFire)" stroke="#3d0500" stroke-width="2.5" stroke-linejoin="round">
-                <polygon points="52,96 86,82 78,112"/>
-                <polygon points="148,96 114,82 122,112"/>
-                <polygon points="100,104 91,121 109,121"/>
-                <path d="M46,130 L66,144 L76,134 L90,148 L100,136 L110,148 L124,134 L134,144 L154,130 L142,158 L122,148 L112,162 L100,150 L88,162 L78,148 L58,158 Z"/>
-            </g>
-        </svg>
-    </div>
-
     <header>
         <div class="rune-container" id="rune-container">
             <div id="rune-symbol"></div>
@@ -698,7 +731,7 @@
                 <div id="rune-meaning"></div>
             </div>
         </div>
-        <div class="main-title" id="title-trigger"><span class="neon-tube-main">СЕГ<span class="neon-flicker-fast">О</span>ДНЯ НА КР<span class="neon-flicker-slow">А</span>НАХ</span></div>
+        <div class="main-title" id="title-trigger"><span class="neon-tube-main"><span class="title-letter">С</span><span class="title-letter">Е</span><span class="title-letter">Г</span><span class="title-letter neon-flicker-fast">О</span><span class="title-letter">Д</span><span class="title-letter">Н</span><span class="title-letter">Я</span> <span class="title-letter">Н</span><span class="title-letter">А</span> <span class="title-letter">К</span><span class="title-letter">Р</span><span class="title-letter neon-flicker-slow">А</span><span class="title-letter">Н</span><span class="title-letter">А</span><span class="title-letter">Х</span></span></div>
         <div class="logo" id="logo-container">
             <input type="file" id="logo-file-input" style="display:none" accept="image/*">
             <img id="logo-img" src="">
@@ -825,158 +858,143 @@
 
         updateRune();
 
-        /* ================= ЛОГИКА ТЕМЫ ХЭЛЛОУИН (ОПТИМИЗАЦИЯ ДЛЯ TV STICK) ================= */
-        const sparksCanvas = document.getElementById('sparks-canvas');
-        const ctx = sparksCanvas.getContext('2d', { alpha: true });
-        const CANVAS_SCALE = 0.5; // Половинное разрешение буфера (дает 4x прирост скорости без потери вида)
-        let sparksActive = false;
-        let sparksRafId = null;
-        let lastSparkTime = 0;
-        let canvasW = 0, canvasH = 0;
-        let sparksList = [];
-        let sparkSprites = [];
+        /* ================= ЛОГИКА ТЕМЫ ХЭЛЛОУИН (ЗАМОК, ПАУЧОК-РЕМОНТНИК, НЕОН) ================= */
         let spiderTimer = null;
-        let skullTimer = null;
+        let letterBreakTimeout = null;
+        let lampFlickerTimer = null;
+        let spiderBusy = false;
+        let repairTimeouts = [];
 
-        function createSparkSprites() {
-            const palettes = [
-                ['#ffffff', '#ffea79', '#ff6a00', 'rgba(255, 50, 0, 0)'],
-                ['#fff6d6', '#ffb703', '#e83800', 'rgba(180, 10, 0, 0)'],
-                ['#ffffff', '#ff9e00', '#d00000', 'rgba(120, 0, 0, 0)']
-            ];
-            sparkSprites = palettes.map(cols => {
-                const off = document.createElement('canvas');
-                off.width = 32; off.height = 32;
-                const octx = off.getContext('2d');
-                const grad = octx.createRadialGradient(16, 16, 1, 16, 16, 15);
-                grad.addColorStop(0, cols[0]);
-                grad.addColorStop(0.25, cols[1]);
-                grad.addColorStop(0.6, cols[2]);
-                grad.addColorStop(1, cols[3]);
-                octx.fillStyle = grad;
-                octx.beginPath();
-                octx.arc(16, 16, 15, 0, Math.PI * 2);
-                octx.fill();
-                return off;
-            });
-        }
-        createSparkSprites();
+        function setSpiderPose(xPx, dropVh, tiltDeg = 0, durationMs = 850) {
+            const rig = document.getElementById('spider-rig');
+            const thread = document.getElementById('spider-thread');
+            const actor = document.getElementById('spider-actor');
+            if (!rig || !thread || !actor) return;
 
-        function resizeSparksCanvas() {
-            canvasW = Math.floor(window.innerWidth * CANVAS_SCALE);
-            canvasH = Math.floor(window.innerHeight * CANVAS_SCALE);
-            sparksCanvas.width = canvasW;
-            sparksCanvas.height = canvasH;
-        }
-        window.addEventListener('resize', resizeSparksCanvas);
-        resizeSparksCanvas();
+            const scaleY = Math.max(0.08, dropVh / 22).toFixed(3);
+            rig.style.transitionDuration = durationMs + 'ms';
+            thread.style.transitionDuration = durationMs + 'ms';
+            actor.style.transitionDuration = durationMs + 'ms';
 
-        function spawnSpark(randomY = false) {
-            return {
-                x: Math.random() * canvasW,
-                y: randomY ? Math.random() * canvasH : canvasH + 10 + Math.random() * 20,
-                vx: (Math.random() - 0.35) * 0.7,
-                vy: -(0.6 + Math.random() * 1.4),
-                size: Math.round(4 + Math.random() * 8),
-                alpha: 0.45 + Math.random() * 0.55,
-                phase: Math.random() * Math.PI * 2,
-                freq: 0.03 + Math.random() * 0.04,
-                sway: 0.25 + Math.random() * 0.5,
-                sprite: sparkSprites[Math.floor(Math.random() * sparkSprites.length)]
-            };
+            rig.style.transform = `translate3d(${Math.round(xPx)}px, 0, 0)`;
+            thread.style.transform = `scaleY(${scaleY})`;
+            actor.style.transform = `translate3d(0, ${(dropVh - 0.4).toFixed(1)}vh, 0) rotate(${tiltDeg}deg)`;
         }
 
-        function animateSparks(now) {
-            if (!sparksActive) return;
-            sparksRafId = requestAnimationFrame(animateSparks);
-
-            // Ограничение до ~30 FPS для разгрузки слабой графики приставки
-            if (now - lastSparkTime < 33) return;
-            lastSparkTime = now;
-
-            ctx.clearRect(0, 0, canvasW, canvasH);
-
-            for (let i = 0; i < sparksList.length; i++) {
-                const p = sparksList[i];
-                p.phase += p.freq;
-                p.x += p.vx + Math.sin(p.phase) * p.sway;
-                p.y += p.vy;
-
-                ctx.globalAlpha = p.alpha * (0.7 + 0.3 * Math.sin(p.phase * 2));
-                ctx.drawImage(p.sprite, (p.x - p.size * 0.5) | 0, (p.y - p.size * 0.5) | 0, p.size, p.size);
-
-                if (p.y < -15 || p.x < -20 || p.x > canvasW + 20) {
-                    sparksList[i] = spawnSpark(false);
-                }
-            }
+        function getSpiderHomeX() {
+            return Math.round(window.innerWidth * 0.23);
         }
 
         function runSpiderLife() {
-            const thread = document.getElementById('spider-thread');
+            if (appData.theme !== 'halloween' || spiderBusy) return;
             const actor = document.getElementById('spider-actor');
-            if (!thread || !actor) return;
+            if (!actor) return;
 
-            const minH = 4.5, maxH = 19;
+            const minH = 7.5, maxH = 18.5;
             const nextH = +(minH + Math.random() * (maxH - minH)).toFixed(1);
-            const tilt = +((Math.random() - 0.5) * 24).toFixed(1);
-            const scaleY = (nextH / 20).toFixed(3);
+            const tilt = +((Math.random() - 0.5) * 20).toFixed(1);
 
             actor.classList.add('scurry');
-            thread.style.transform = `scaleY(${scaleY})`;
-            actor.style.transform = `translate3d(0, ${(nextH - 0.4).toFixed(1)}vh, 0) rotate(${tilt}deg)`;
+            setSpiderPose(getSpiderHomeX(), nextH, tilt, 1500);
 
-            setTimeout(() => actor.classList.remove('scurry'), 1600);
+            setTimeout(() => {
+                if (!spiderBusy) actor.classList.remove('scurry');
+            }, 1400);
         }
 
-        function spawnRandomTapSkull() {
+        function scheduleNextBrokenLetter() {
+            if (letterBreakTimeout) clearTimeout(letterBreakTimeout);
             if (appData.theme !== 'halloween') return;
-            const circles = document.querySelectorAll('.circled-number');
-            if (!circles.length) return;
-            const target = circles[Math.floor(Math.random() * circles.length)];
+            const delay = 10000 + Math.random() * 5000; // Каждые 10-15 секунд
+            letterBreakTimeout = setTimeout(triggerBrokenLetterSequence, delay);
+        }
 
-            const skullWrap = document.createElement('div');
-            skullWrap.className = 'tap-skull-popup';
-            skullWrap.innerHTML = `
-                <svg viewBox="0 0 100 100" width="100%" height="100%">
-                    <defs>
-                        <radialGradient id="skullBone" cx="50%" cy="35%" r="55%">
-                            <stop offset="0%" stop-color="#fffdf7"/>
-                            <stop offset="65%" stop-color="#ded6c1"/>
-                            <stop offset="100%" stop-color="#8c826b"/>
-                        </radialGradient>
-                        <radialGradient id="skullAura" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="rgba(255, 80, 0, 0.55)"/>
-                            <stop offset="100%" stop-color="rgba(0, 0, 0, 0)"/>
-                        </radialGradient>
-                    </defs>
-                    <!-- Встроенное легкое свечение вместо тяжелого CSS drop-shadow -->
-                    <circle cx="50" cy="50" r="48" fill="url(#skullAura)"/>
-                    <!-- Нижняя челюсть -->
-                    <g class="skull-jaw">
-                        <path d="M33,66 L67,66 L63,83 C55,88 45,88 37,83 Z" fill="url(#skullBone)" stroke="#2b261f" stroke-width="3"/>
-                        <line x1="42" y1="67" x2="42" y2="79" stroke="#2b261f" stroke-width="2.2"/>
-                        <line x1="50" y1="67" x2="50" y2="81" stroke="#2b261f" stroke-width="2.2"/>
-                        <line x1="58" y1="67" x2="58" y2="79" stroke="#2b261f" stroke-width="2.2"/>
-                    </g>
-                    <!-- Черепная коробка -->
-                    <path d="M20,44 C20,21 34,12 50,12 C66,12 80,21 80,44 C80,54 74,60 69,64 L67,72 L33,72 L31,64 C26,60 20,54 20,44 Z" fill="url(#skullBone)" stroke="#2b261f" stroke-width="3"/>
-                    <!-- Глазницы с огнем -->
-                    <circle cx="37" cy="45" r="9.5" fill="#170606" stroke="#2b261f" stroke-width="2"/>
-                    <circle cx="63" cy="45" r="9.5" fill="#170606" stroke="#2b261f" stroke-width="2"/>
-                    <circle cx="37" cy="45" r="4" fill="#ff3300"/>
-                    <circle cx="63" cy="45" r="4" fill="#ff3300"/>
-                    <circle cx="37" cy="45" r="1.8" fill="#ffb703"/>
-                    <circle cx="63" cy="45" r="1.8" fill="#ffb703"/>
-                    <!-- Носовая впадина -->
-                    <polygon points="50,51 45,61 55,61" fill="#1a0d0d"/>
-                    <!-- Верхние зубы -->
-                    <line x1="39" y1="65" x2="39" y2="72" stroke="#2b261f" stroke-width="2.2"/>
-                    <line x1="46" y1="65" x2="46" y2="72" stroke="#2b261f" stroke-width="2.2"/>
-                    <line x1="54" y1="65" x2="54" y2="72" stroke="#2b261f" stroke-width="2.2"/>
-                    <line x1="61" y1="65" x2="61" y2="72" stroke="#2b261f" stroke-width="2.2"/>
-                </svg>`;
-            target.appendChild(skullWrap);
-            setTimeout(() => skullWrap.remove(), 2550);
+        function triggerBrokenLetterSequence() {
+            if (appData.theme !== 'halloween') return;
+            const letters = document.querySelectorAll('#title-trigger .title-letter');
+            const actor = document.getElementById('spider-actor');
+            if (!letters.length || !actor || spiderBusy) {
+                scheduleNextBrokenLetter();
+                return;
+            }
+
+            spiderBusy = true;
+            const targetLetter = letters[Math.floor(Math.random() * letters.length)];
+            targetLetter.classList.add('hanging-letter');
+
+            // 1. Паучок замечает поломку и подтягивается к потолку
+            const t1 = setTimeout(() => {
+                actor.classList.add('scurry');
+                setSpiderPose(getSpiderHomeX(), 2.6, 12, 380);
+            }, 650);
+
+            // 2. Паучок быстро перебегает по потолку к отвалившейся букве
+            const t2 = setTimeout(() => {
+                const rect = targetLetter.getBoundingClientRect();
+                const targetX = rect.left + rect.width * 0.52;
+                setSpiderPose(targetX, 2.5, -10, 950);
+            }, 1080);
+
+            // 3. Спускается прямо на гвоздик буквы и чинит её
+            const t3 = setTimeout(() => {
+                const rect = targetLetter.getBoundingClientRect();
+                const targetX = rect.left + rect.width * 0.52;
+                const targetDropVh = Math.max(3, ((rect.top + rect.height * 0.15) / window.innerHeight) * 100);
+                setSpiderPose(targetX, targetDropVh, 18, 420);
+            }, 2080);
+
+            const t4 = setTimeout(() => {
+                const rect = targetLetter.getBoundingClientRect();
+                const targetX = rect.left + rect.width * 0.52;
+                const targetDropVh = Math.max(3, ((rect.top + rect.height * 0.15) / window.innerHeight) * 100);
+                setSpiderPose(targetX, targetDropVh, -18, 260);
+            }, 2550);
+
+            // 4. Буква встает на место и вспыхивает неоном
+            const t5 = setTimeout(() => {
+                targetLetter.classList.remove('hanging-letter');
+                targetLetter.classList.add('just-fixed');
+                setTimeout(() => targetLetter.classList.remove('just-fixed'), 550);
+            }, 2880);
+
+            // 5. Паучок возвращается обратно на свою паутину
+            const t6 = setTimeout(() => {
+                setSpiderPose(getSpiderHomeX(), 11.5, 0, 1250);
+            }, 3250);
+
+            const t7 = setTimeout(() => {
+                actor.classList.remove('scurry');
+                spiderBusy = false;
+                scheduleNextBrokenLetter();
+            }, 4550);
+
+            repairTimeouts.push(t1, t2, t3, t4, t5, t6, t7);
+        }
+
+        function triggerRandomGasLampFlicker() {
+            if (appData.theme !== 'halloween') return;
+            const cards = document.querySelectorAll('.tap-content');
+            if (!cards.length) return;
+            const card = cards[Math.floor(Math.random() * cards.length)];
+            card.classList.remove('gas-lamp-flicker');
+            void card.offsetWidth;
+            card.classList.add('gas-lamp-flicker');
+            setTimeout(() => card.classList.remove('gas-lamp-flicker'), 700);
+        }
+
+        function clearHalloweenTimers() {
+            if (spiderTimer) { clearInterval(spiderTimer); spiderTimer = null; }
+            if (letterBreakTimeout) { clearTimeout(letterBreakTimeout); letterBreakTimeout = null; }
+            if (lampFlickerTimer) { clearInterval(lampFlickerTimer); lampFlickerTimer = null; }
+            repairTimeouts.forEach(t => clearTimeout(t));
+            repairTimeouts = [];
+            spiderBusy = false;
+            document.querySelectorAll('.title-letter.hanging-letter, .title-letter.just-fixed').forEach(el => {
+                el.classList.remove('hanging-letter', 'just-fixed');
+            });
+            document.querySelectorAll('.tap-content.gas-lamp-flicker').forEach(el => {
+                el.classList.remove('gas-lamp-flicker');
+            });
         }
 
         function applyThemeState() {
@@ -991,26 +1009,19 @@
             });
 
             if (isHalloween) {
-                if (!sparksActive) {
-                    sparksActive = true;
-                    resizeSparksCanvas();
-                    sparksList = Array.from({ length: 28 }, () => spawnSpark(true));
-                    sparksRafId = requestAnimationFrame(animateSparks);
-                }
                 if (!spiderTimer) {
-                    setTimeout(runSpiderLife, 600);
-                    spiderTimer = setInterval(runSpiderLife, 4500);
+                    setSpiderPose(getSpiderHomeX(), 11, 0, 400);
+                    setTimeout(runSpiderLife, 700);
+                    spiderTimer = setInterval(runSpiderLife, 4800);
                 }
-                if (!skullTimer) {
-                    skullTimer = setInterval(spawnRandomTapSkull, 7500);
+                if (!letterBreakTimeout && !spiderBusy) {
+                    scheduleNextBrokenLetter();
+                }
+                if (!lampFlickerTimer) {
+                    lampFlickerTimer = setInterval(triggerRandomGasLampFlicker, 5500);
                 }
             } else {
-                sparksActive = false;
-                if (sparksRafId) { cancelAnimationFrame(sparksRafId); sparksRafId = null; }
-                ctx.clearRect(0, 0, canvasW, canvasH);
-                if (spiderTimer) { clearInterval(spiderTimer); spiderTimer = null; }
-                if (skullTimer) { clearInterval(skullTimer); skullTimer = null; }
-                document.querySelectorAll('.tap-skull-popup').forEach(el => el.remove());
+                clearHalloweenTimers();
             }
         }
 
