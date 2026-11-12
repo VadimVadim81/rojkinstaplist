@@ -15,7 +15,7 @@
         
         body { 
             margin: 0; padding: 0; 
-            background: radial-gradient(ellipse at 50% 0%, #2a2a2a 0%, #080808 40%, #000000 100%); 
+            background: linear-gradient(to bottom, #2a2a2a 0%, #111111 40%, #050505 100%); 
             color: white; 
             font-family: 'Montserrat', sans-serif; font-weight: 600; 
             display: flex; flex-direction: column; align-items: center; 
@@ -1207,7 +1207,7 @@
                 const html = `<div class="tap-item" data-i="${i}" draggable="${isEditMode && !isStopped}">
                     <div class="circled-number">${t.number}</div>
                     <div class="tap-content">
-                        ${isStopped ? '<div class="stop-overlay"><div class="stop-text">КЕГ ПАЛ В БОЮ</div></div>' : ''}
+                        ${isStopped ? '<div class="stop-overlay"><div class="stop-text">СКОРО ТУТ БУДЕТ ПИВО</div></div>' : ''}
                         <div class="tap-menu-container">
                             <div class="tap-menu-btn" data-i="${i}">⋮</div>
                             <div class="tap-context-menu" id="menu-${i}">
@@ -1311,13 +1311,11 @@
         }
         
         scheduleAutoReload();
-        /* ================= ЗАЩИТА ОТ УХОДА В СОН ================= */
-        // 1. Официальный способ (современные браузеры)
+
         async function keepScreenAlive() {
             try {
                 if ('wakeLock' in navigator) {
                     const wakeLock = await navigator.wakeLock.request('screen');
-                    // Если система сбросила блокировку, запрашиваем её снова через 10 секунд
                     wakeLock.addEventListener('release', () => {
                         setTimeout(keepScreenAlive, 10000);
                     });
@@ -1326,12 +1324,10 @@
         }
         keepScreenAlive();
 
-        // 2. Механический способ (эмуляция активности для старых приставок)
-        // Каждые 15 минут отправляем невидимый клик и движение мышью по экрану
         setInterval(() => {
             document.body.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 10, clientY: 10 }));
             document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 10, clientY: 10 }));
-        }, 15 * 60 * 1000);
+        }, 15 * 60 * 1000); 
     </script>
 </body>
 </html>
