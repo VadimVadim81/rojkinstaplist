@@ -1311,6 +1311,27 @@
         }
         
         scheduleAutoReload();
+        /* ================= ЗАЩИТА ОТ УХОДА В СОН ================= */
+        // 1. Официальный способ (современные браузеры)
+        async function keepScreenAlive() {
+            try {
+                if ('wakeLock' in navigator) {
+                    const wakeLock = await navigator.wakeLock.request('screen');
+                    // Если система сбросила блокировку, запрашиваем её снова через 10 секунд
+                    wakeLock.addEventListener('release', () => {
+                        setTimeout(keepScreenAlive, 10000);
+                    });
+                }
+            } catch (err) {}
+        }
+        keepScreenAlive();
+
+        // 2. Механический способ (эмуляция активности для старых приставок)
+        // Каждые 15 минут отправляем невидимый клик и движение мышью по экрану
+        setInterval(() => {
+            document.body.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 10, clientY: 10 }));
+            document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 10, clientY: 10 }));
+        }, 15 * 60 * 1000);
     </script>
 </body>
 </html>
