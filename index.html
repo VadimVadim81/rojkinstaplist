@@ -1253,8 +1253,24 @@
                     if (f === 'name' && val) val = val.toUpperCase();
                     else if ((f === 'style' || f === 'brewery') && val) val = val.charAt(0).toUpperCase() + val.slice(1);
                     if (i !== undefined) {
-                        appData.taps[i][f] = val;
-                        if (f === 'litrePrice' && !isNaN(parseFloat(val))) appData.taps[i].glassPrice = Math.round((parseFloat(val)/2)+70).toString();
+                        if (f === 'litrePrice') {
+                            const trimmed = val.trim();
+                            if (trimmed !== String(appData.taps[i].litrePrice || '').trim()) {
+                                const basePrice = parseFloat(trimmed.replace(',', '.'));
+                                if (!isNaN(basePrice)) {
+                                    const volMatch = (appData.taps[i].glassLabel || "Бокал 0,5").match(/(\d+[.,]\d+)/);
+                                    const volCoeff = volMatch ? parseFloat(volMatch[1].replace(',', '.')) : 0.5;
+                                    appData.taps[i].baseLitrePrice = basePrice;
+                                    appData.taps[i].litrePrice = Math.round(basePrice * 0.8).toString();
+                                    appData.taps[i].glassPrice = Math.round(basePrice * volCoeff).toString();
+                                } else {
+                                    appData.taps[i].litrePrice = val;
+                                    delete appData.taps[i].baseLitrePrice;
+                                }
+                            }
+                        } else {
+                            appData.taps[i][f] = val;
+                        }
                     }
                     else if (el.id === 'logo-text') appData.logoText = val;
                     else if (el.id === 'custom-footer') appData.footer = val;
@@ -1265,6 +1281,14 @@
             document.querySelectorAll('select.glass-select').forEach(sel => sel.onchange = () => {
                 const i = sel.dataset.i;
                 appData.taps[i].glassLabel = sel.value;
+                const basePrice = !isNaN(parseFloat(appData.taps[i].baseLitrePrice))
+                    ? parseFloat(appData.taps[i].baseLitrePrice)
+                    : (parseFloat(String(appData.taps[i].litrePrice || '').replace(',', '.')) / 0.8);
+                if (!isNaN(basePrice)) {
+                    const volMatch = sel.value.match(/(\d+[.,]\d+)/);
+                    const volCoeff = volMatch ? parseFloat(volMatch[1].replace(',', '.')) : 0.5;
+                    appData.taps[i].glassPrice = Math.round(basePrice * volCoeff).toString();
+                }
                 save(); render();
             });
 
