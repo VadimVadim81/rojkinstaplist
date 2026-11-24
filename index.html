@@ -1019,11 +1019,9 @@
         
         document.getElementById('logo-file-input').onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
-            saveStatus.innerText = "Сжатие..."; saveStatus.style.opacity = 1;
+            saveStatus.innerText = "Загрузка..."; saveStatus.style.opacity = 1;
             try {
-                const compressedBlob = await compressImage(file, 200);
-                saveStatus.innerText = "Загрузка...";
-                appData.logoBase64 = await uploadToCloudinary(compressedBlob);
+                appData.logoBase64 = await uploadToCloudinary(file);
                 save(); render();
             } catch (err) { alert("Ошибка Cloudinary!"); }
             saveStatus.style.opacity = 0; e.target.value = "";
